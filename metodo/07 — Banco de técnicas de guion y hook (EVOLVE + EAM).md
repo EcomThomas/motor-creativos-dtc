@@ -116,7 +116,7 @@ La técnica EAM de "6 hooks compatibles + 1 cuerpo universal" **NO** es el gener
 | 6-hooks+1-hold (solo Iteración) | Etapa 4 | [metodo/02](02%20—%20Clasificación%20(imitación%20·%20iteración%20·%20ideación).md) |
 | Storytelling / revelación | — | **Anexo §7, gate obligatorio** (no canónico) |
 
-> **Nota — colisión de nombres a limpiar en el motor.** Los registros General/Organic **no tienen slot** en el schema actual (son una perilla de guion). Y ojo: el motor usa el nombre `ad_type` para **dos cosas distintas** — en el canon ([metodo/01:45](01%20—%20Bache%20(definición%20+%20schema).md)) `ad_type` = *rol* del anuncio (hook-test/prueba-social/demo-mecanismo), pero en el **código** ([wf_baches.js](../scripts/wf_baches.js), [config.json](../config.json), [persist.py](../scripts/persist.py)) `ad_type` es el enum `Imitation/Iteration/Ideation` (lo que el canon llama `classification`). Si se quiere trazar el registro (General/Organic), debería ser un campo NUEVO (p. ej. `registro`), no colgarlo de `ad_type`. Conviene unificar `classification` (canon) vs `ad_type` (código) en un futuro cleanup.
+> **Nota — nomenclatura (colisión ya resuelta).** El enum Imitación/Iteración/Ideación se llama **`classification`** en todo el motor (canon + código: [metodo/01](01%20—%20Bache%20(definición%20+%20schema).md), [wf_baches.js](../scripts/wf_baches.js), [config.json](../config.json), [persist.py](../scripts/persist.py)); el *rol* del anuncio es **`ad_role`**; la columna Excel "Ad Type" (display) mapea a `classification`. Los registros General/Organic **no tienen slot** en el schema (son una perilla de guion); si se quisiera trazar, sería un campo nuevo `registro`, nunca `classification`.
 
 ---
 

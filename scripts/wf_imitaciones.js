@@ -61,6 +61,8 @@ QUÉ ES IMITACIÓN: te basas ~90-100% en la ESTRUCTURA de un anuncio ganador del
 
 REGLAS:
 - Cada uno de los ${M} ads imita la estructura de un COMPETIDOR DISTINTO del archivo de scripts (nómbralo en "imita_competidor").
+- TRÁFICO FRÍO: cada ad abre por el mundo/dolor del avatar en los primeros 3s, NUNCA por la marca/producto/features (entra por Mirror o Hijack).
+- HOOK (Three-Element Test): cada ad debe pasar (1) intensidad emocional <3s + (2) relevancia personal (habla de él, no del producto) + (3) curiosity gap específico; NO puede "parecer un anuncio" y debe entenderse sin sonido.
 - Copy en el idioma/registro del mercado del Spine, tono del avatar.
 - Compliance según el Spine: afirmaciones fuertes en boca de testimonio; nada de claims prohibidos.
 - ad_format Video o Static según la estructura imitada.

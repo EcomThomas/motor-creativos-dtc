@@ -89,8 +89,8 @@ Ordenado por prioridad. Cada tarea es concreta y cerrable.
 - [ ] **Generalizar el compliance por categoría de producto.** Hoy el compliance es un marco general. Convertirlo en una tabla por categoría (salud/suplementos, finanzas, belleza, gadgets, etc.) donde el Spine seleccione la categoría y se cargue el léxico prohibido + reglas específicas. El caso de referencia (suplemento hepático) sirve de primer ejemplo de la categoría salud.
 
 - [ ] **Builder de la hoja "Creative Roadmap" (Excel)** que respete validaciones:
-  - Columnas canónicas (bache, concepto, ángulo, avatar, deseo, awareness, hipótesis, ad_type, ad_format, copy, nota, estado).
-  - Validaciones/enums en las columnas categóricas (awareness, ad_type ∈ {Imitación, Iteración, Ideación}, ad_format ∈ {Video, Static}).
+  - Columnas canónicas (bache, concepto, ángulo, avatar, deseo, awareness, hipótesis, classification, ad_format, copy, nota, estado).
+  - Validaciones/enums en las columnas categóricas (awareness, classification ∈ {Imitación, Iteración, Ideación}, ad_format ∈ {Video, Static}).
   - Que sea idempotente: re-correr no duplica filas.
 
 ### P2 — Conexión al resto del pipeline

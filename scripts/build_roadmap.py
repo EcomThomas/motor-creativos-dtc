@@ -12,7 +12,7 @@ Uso:
     "concept": "...", "angle": "...", "avatar": "...", "mass_desire": "Quiero...",
     "awareness": "Problem Aware", "hypothesis": "...",
     "ads": [
-      { "ad_type": "Imitation|Iteration|Ideation", "ad_format": "Video|Static|Promo",
+      { "classification": "Imitation|Iteration|Ideation", "ad_format": "Video|Static|Promo",
         "copy": "...", "nota": "...", "imita_competidor": "(opcional)" }, ...
     ]
   }, ...
@@ -68,7 +68,7 @@ def main():
                 ws.cell(r, COL["hypothesis"], b.get("hypothesis", ""))
             ws.cell(r, COL["batch"], f"BATCH #{i}")
             ws.cell(r, COL["avatar"], b.get("avatar", ""))
-            ws.cell(r, COL["adtype"], ATYPE.get(ad.get("ad_type", "Imitation"), "🎭 Imitation"))
+            ws.cell(r, COL["adtype"], ATYPE.get(ad.get("classification", ad.get("ad_type", "Imitation")), "🎭 Imitation"))
             ws.cell(r, COL["adformat"], AFMT.get(ad.get("ad_format", "Video"), "🎬 Video"))
             cell = ws.cell(r, COL["copy"], ad.get("copy", ""))
             nota = ad.get("nota", "")

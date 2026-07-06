@@ -139,7 +139,7 @@ Schema del genérico (cuando quieras permitir los tres tipos en un mismo bache, 
 
 ```
 Ad (genérico) = {
-  ad_type:   enum { Imitation | Iteration | Ideation }
+  classification: enum { Imitation | Iteration | Ideation }
   ad_format: enum { Video | Static }
   copy:      string
   nota:      string   // qué imita/itera/idea + ID de VoC o competidor de referencia
@@ -148,6 +148,7 @@ Ad (genérico) = {
 
 **Criterio de "hecho bien"**
 - El `copy` es **usable tal cual** (hook + cuerpo corto; longitud acorde al formato/plataforma), en el registro/idioma del `<AVATAR>` — no jerga ajena, no estética que no corresponde al avatar.
+- El **hook** (primeros 3s) pasa el **Three-Element Test** (intensidad emocional + relevancia personal + curiosity gap) y no "parece un anuncio"; abre por el avatar (**tráfico frío**), no por la marca/features. Ver el banco de técnicas en [metodo/07](metodo/07%20—%20Banco%20de%20técnicas%20de%20guion%20y%20hook%20(EVOLVE%20+%20EAM).md).
 - Cada ad **respeta compliance**: afirmaciones fuertes en boca de **testimonio**; sin claims absolutos (p. ej. "cura/garantizado"); sin el léxico prohibido del Spine; en categorías sensibles, el mecanismo se enmarca como **creencia/testimonio**, no como claim clínico. Los puentes causales riesgosos van como testimonio.
 - Cada ad es **trazable**: nombra el competidor imitado y trae 2–4 `EVxxxx` que sostienen el re-anclaje.
 - Los M ads de un bache imitan **M estructuras distintas**.

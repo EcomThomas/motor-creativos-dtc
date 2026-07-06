@@ -90,7 +90,9 @@ const ADS_SCHEMA = {
 const FRAME = `Motor de Creativos DTC (metodologia Schwartz) para: ${PRODUCT}.
 El Spine es la FUENTE DE VERDAD del frame (avatar, deseo, emocion troncal, mecanismo con su lexico prohibido, villano, prueba, objecion raiz, awareness, compliance). Spine: "${SPINE}". Estructuras ganadoras del competidor: "${SCRIPTS}".
 ${VOC_RULE}
-No inventes nada fuera del Spine.`
+No inventes nada fuera del Spine.
+TRAFICO FRIO: el avatar NO conoce la marca ni busca comprar; esta scrolleando. Los primeros 3s son sobre EL (su mundo/dolor/interes), NUNCA sobre la marca/producto/features. Entra por Mirror (reflejar su mundo interno) o Hijack (secuestrar un interes que ya tiene).
+HOOK (Three-Element Test): cada hook = intensidad emocional <3s + relevancia personal (habla de el, no del producto) + curiosity gap especifico. Si "parece un anuncio", esta mal; entendible sin sonido.`
 
 // Pipeline por foco: cada angulo recorre baches -> imitaciones -> brief SIN barrera entre etapas.
 const results = await pipeline(

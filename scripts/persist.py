@@ -25,7 +25,7 @@ El <bundle.json> lo produce el runbook a partir del resultado de wf_motor. Forma
   "producto": "...", "slug": "...",
   "snapshot": { "spinePath": "...", "scriptsPath": "...", "vocPath": null },
   "batches": [ { "n":1, "slug":"nucleo", "concept","angle","avatar","mass_desire",
-                 "awareness","hypothesis", "ads":[ {imita_competidor, ad_format, copy, nota, ad_type?} ] } ],
+                 "awareness","hypothesis", "ads":[ {imita_competidor, ad_format, copy, nota, classification?} ] } ],
   "briefs":  [ { "n":1, "slug":"nucleo", "md":"# BRIEF ..." } ]
 }
 """
@@ -71,7 +71,7 @@ def _roadmap_rows(batches, author):
                 "Awareness": b.get("awareness", "") if head else "",
                 "Hypothesis": b.get("hypothesis", "") if head else "",
                 "Ad #": f"{n}.{j + 1}",
-                "Ad Type": ad.get("ad_type", "Imitation"),
+                "Ad Type": ad.get("classification", ad.get("ad_type", "Imitation")),
                 "Ad Format": ad.get("ad_format", defaults()["ad_format_default"]),
                 "Copy": ad.get("copy", ""),
                 "Nota (traza)": (("IMITA: " + ad["imita_competidor"] + " | ") if ad.get("imita_competidor") else "")

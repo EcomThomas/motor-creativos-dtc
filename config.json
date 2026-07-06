@@ -13,7 +13,7 @@
 
   "enums": {
     "awareness": ["Unaware", "Problem Aware", "Solution Aware", "Product Aware", "Most Aware"],
-    "ad_type": ["Imitation", "Iteration", "Ideation"],
+    "classification": ["Imitation", "Iteration", "Ideation"],
     "ad_format": ["Video", "Static"],
     "roadmap_status": ["Ideando", "Working", "Learning", "Filming", "Done"]
   },

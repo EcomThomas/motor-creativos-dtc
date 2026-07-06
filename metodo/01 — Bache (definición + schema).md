@@ -42,7 +42,7 @@ Un bache **no** es un ángulo suelto, **no** es un solo anuncio, y **no** es un 
       "ad_id": "B01-A1",
       "classification": "Imitación | Iteración | Ideación",
       "imita_competidor": "<ref del anuncio ganador imitado — vacío si no aplica>",
-      "ad_type": "<rol del anuncio: hook-test | prueba-social | demo-mecanismo | testimonio | ...>",
+      "ad_role": "<rol del anuncio: hook-test | prueba-social | demo-mecanismo | testimonio | ...>",
       "ad_format": "Video | Static",
       "copy": "<copy principal / guion del anuncio>",
       "nota": "<qué variable cambia este anuncio respecto a sus hermanos del bache>"
@@ -69,7 +69,7 @@ Un bache **no** es un ángulo suelto, **no** es un solo anuncio, y **no** es un 
 | `ads[]` | Los anuncios (por defecto 3) que comparten la hipótesis. | Todos atacan la MISMA hipótesis por caminos distintos. |
 | `ads[].classification` | Imitación / Iteración / Ideación (ver Canon). | Son opciones, no una cuota. Al apoyarse en ganadores, mayoría **Imitación**. |
 | `ads[].imita_competidor` | Ref del anuncio ganador imitado. | Se conserva su ARCO; solo se re-ancla el contenido al Spine. |
-| `ads[].ad_type` | El rol del anuncio dentro del bache. | Ej. hook-test, prueba-social, demo-mecanismo, testimonio. |
+| `ads[].ad_role` | El rol del anuncio dentro del bache. | Ej. hook-test, prueba-social, demo-mecanismo, testimonio. |
 | `ads[].ad_format` | Video o Static. | El formato es una variable de test, no un default. |
 | `ads[].copy` | El copy/guion principal. | Debe ser fiel al ángulo y al awareness del bache. |
 | `ads[].nota` | Qué variable cambia este anuncio vs. sus hermanos. | Hace explícito el "por dónde ataca" cada variación. |
@@ -160,7 +160,7 @@ Copia este bloque y llénalo por cada bache. Un bache por tabla.
 
 **Anuncios del bache** (por defecto 3, mayoría Imitación):
 
-| ad_id | classification | imita_competidor | ad_type | ad_format | copy | nota |
+| ad_id | classification | imita_competidor | ad_role | ad_format | copy | nota |
 |---|---|---|---|---|---|---|
 | `B0_-A1` | `Imitación` | `<ref ganador>` | `<hook-test / prueba-social / demo-mecanismo…>` | `Video / Static` | `<copy / guion>` | `<qué variable cambia>` |
 | `B0_-A2` | `Imitación` | `<ref ganador>` | `<...>` | `Video / Static` | `<copy / guion>` | `<qué variable cambia>` |

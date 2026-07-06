@@ -34,9 +34,9 @@ const VOC_RULE = VOC
 const AW = ['Unaware', 'Problem Aware', 'Solution Aware', 'Product Aware', 'Most Aware']
 const AD = {
   type: 'object', additionalProperties: false,
-  required: ['ad_type', 'ad_format', 'copy', 'nota'],
+  required: ['classification', 'ad_format', 'copy', 'nota'],
   properties: {
-    ad_type: { type: 'string', enum: ['Imitation', 'Iteration', 'Ideation'] },
+    classification: { type: 'string', enum: ['Imitation', 'Iteration', 'Ideation'] },
     ad_format: { type: 'string', enum: ['Video', 'Static'] },
     copy: { type: 'string' },
     nota: { type: 'string', description: 'qué imita/itera/idea + competidor de referencia o ID de VoC' },
@@ -60,6 +60,9 @@ const CTX = `Generas UN BACHE creativo (concepto + ${M} anuncios) para: ${PRODUC
 LEE el Spine (estrategia VIGENTE) en "${SPINE}" y las estructuras ganadoras reales del competidor en "${SCRIPTS}".
 ${VOC_RULE}
 El Spine es la FUENTE DE VERDAD del frame (avatar, deseo, emoción, mecanismo con su léxico prohibido, villano, prueba, objeción raíz, awareness, compliance). No inventes nada fuera del Spine.
+
+TRÁFICO FRÍO: el avatar NO conoce la marca ni busca comprar; está scrolleando. Los primeros 3s son sobre ÉL (su mundo/dolor/interés), NUNCA sobre la marca/producto/features. Entra por Mirror (reflejar su mundo interno) o Hijack (secuestrar un interés que ya tiene).
+HOOK (Three-Element Test): cada hook debe tener (1) intensidad emocional en <3s, (2) relevancia personal (habla de ÉL, no del producto), (3) curiosity gap específico. Si "parece un anuncio", está mal; debe entenderse sin sonido.
 
 REGLA CREATIVA (imitación/iteración/ideación son OPCIONES, no una cuota de una-de-cada):
 - IMITACIÓN: toma la ESTRUCTURA/arco de un ad ganador real del archivo de scripts (nómbralo en "nota") y RE-ANCLA su contenido al frame del Spine. NO copies la emoción foránea del competidor.
