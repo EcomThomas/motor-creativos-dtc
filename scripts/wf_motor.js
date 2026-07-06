@@ -62,24 +62,31 @@ const VOC_RULE = VOC
 // --- Schemas ---
 const META_SCHEMA = {
   type: 'object', additionalProperties: false,
-  required: ['concept', 'angle', 'avatar', 'mass_desire', 'awareness', 'hypothesis'],
+  required: ['concept', 'angle', 'avatar', 'sub_avatar', 'mass_desire', 'awareness', 'hypothesis', 'valence', 'emociones_83', 'trigger_batch'],
   properties: {
     concept: { type: 'string', description: 'nombre pegajoso del concepto' },
     angle: { type: 'string' },
     avatar: { type: 'string', description: 'nucleo o sub-avatar' },
+    sub_avatar: { type: 'string', description: 'segmento especifico dentro del avatar (edad, situacion, dolor puntual)' },
     mass_desire: { type: 'string', description: 'formato "Quiero..."' },
     awareness: { type: 'string', enum: AW },
     hypothesis: { type: 'string', description: 'falsable; si es cabeza de playa, marcar A VALIDAR' },
+    valence: { type: 'string', enum: ['Positiva', 'Negativa', 'Mixta'], description: 'valence emocional dominante del batch, anclada en la emocion troncal del Spine' },
+    emociones_83: { type: 'array', minItems: 1, maxItems: 3, items: { type: 'string' }, description: 'las 1-3 emociones que cubren ~83% del batch (del Spine + el copy), no inventadas' },
+    trigger_batch: { type: 'string', description: 'trigger emocional troncal del batch (se hereda a las piezas sin trigger propio)' },
   },
 }
 const AD_SCHEMA = {
   type: 'object', additionalProperties: false,
-  required: ['imita_competidor', 'ad_format', 'copy', 'nota'],
+  required: ['imita_competidor', 'ad_format', 'copy', 'nota', 'nombre_creativo', 'concepto_corto', 'trigger_emocional'],
   properties: {
     imita_competidor: { type: 'string', description: 'competidor/ad cuya estructura se imita (del archivo de scripts)' },
     ad_format: { type: 'string', enum: ['Video', 'Static'] },
     copy: { type: 'string', description: 'guion/copy completo, listo para producir, en el registro del mercado del Spine' },
     nota: { type: 'string', description: 'que estructura se conservo + que se re-anclo + IDs EVxxxx (si hay VoC)' },
+    nombre_creativo: { type: 'string', description: 'nombre interno claro y utilizable de la pieza (para ClickUp)' },
+    concepto_corto: { type: 'string', description: 'concepto puntual (no estrategico) de ESTA pieza, breve, para el titulo de subtarea' },
+    trigger_emocional: { type: 'string', description: 'que activa la respuesta emocional del avatar en ESTA pieza' },
   },
 }
 const ADS_SCHEMA = {
@@ -102,10 +109,12 @@ const results = await pipeline(
   (foco, _orig, i) => agent(
     `${FRAME}
 
-GENERA LA METADATA DE UN BACHE (concepto + angulo + avatar + deseo masivo "Quiero..." + nivel de awareness + hipotesis falsable).
+GENERA LA METADATA DE UN BACHE: concepto + angulo + avatar + sub_avatar + deseo masivo "Quiero..." + nivel de awareness + hipotesis falsable + valence dominante + emociones_83 + trigger_batch.
 ANGULO ESTRATEGICO DE ESTE BACHE:
 ${foco.title} — ${foco.desc}
-El deseo y el avatar salen del Spine (o de un sub-avatar legitimo si el angulo es cabeza de playa). Devuelve SOLO la metadata (los anuncios se generan aparte). Sin texto de proceso.`,
+El deseo, el avatar y el sub_avatar (segmento especifico: edad/situacion/dolor puntual) salen del Spine (o de un sub-avatar legitimo si el angulo es cabeza de playa).
+CAMPOS EMOCIONALES (anclalos en la EMOCION TRONCAL del Spine, NO los inventes): valence = Positiva/Negativa/Mixta segun el registro dominante; emociones_83 = las 1-3 emociones que recorren ~83% del batch; trigger_batch = el detonante emocional troncal del batch.
+Devuelve SOLO la metadata (los anuncios se generan aparte). Sin texto de proceso.`,
     { label: `bache${i + 1}:${foco.key || foco.title}`, phase: 'Baches', schema: META_SCHEMA }
   ).then(m => ({ n: i + 1, slug: slugify(foco.key || m.concept), foco, meta: m })),
 
@@ -123,6 +132,7 @@ REGLAS:
 - Compliance segun el Spine: afirmaciones fuertes en boca de testimonio; nada del lexico prohibido; en categorias sensibles el mecanismo va como creencia/testimonio, no como claim clinico.
 - ad_format Video o Static segun la estructura imitada.
 - "nota": competidor imitado + elementos estructurales conservados + que se re-anclo + IDs EVxxxx (solo si hay banco VoC).
+- Por CADA pieza (para el montaje en ClickUp): nombre_creativo (nombre interno claro y utilizable), concepto_corto (la idea PUNTUAL de esa pieza, breve, no estrategica) y trigger_emocional (que activa la respuesta emocional del avatar en ESA pieza; si no difiere, deja el trigger troncal del batch). NO inventes: anclalos en el copy y en la emocion del Spine.
 Devuelve EXACTAMENTE ${M} ads en el schema. Sin texto de proceso.`,
     { label: `ads-${i + 1}`, phase: 'Imitaciones', schema: ADS_SCHEMA }
   ).then(r => ({ ...acc, ads: r.ads })),
@@ -171,8 +181,9 @@ REGLAS: idioma/registro del mercado del Spine; la paridad emocional es el corazo
 const ok = results.filter(Boolean)
 const batches = ok.map(r => ({
   n: r.n, slug: r.slug,
-  concept: r.meta.concept, angle: r.meta.angle, avatar: r.meta.avatar,
+  concept: r.meta.concept, angle: r.meta.angle, avatar: r.meta.avatar, sub_avatar: r.meta.sub_avatar,
   mass_desire: r.meta.mass_desire, awareness: r.meta.awareness, hypothesis: r.meta.hypothesis,
+  valence: r.meta.valence, emociones_83: r.meta.emociones_83, trigger_batch: r.meta.trigger_batch,
   ads: r.ads || [],
 }))
 const briefs = ok.map(r => ({ n: r.n, slug: r.slug, md: r.brief_md || '' }))

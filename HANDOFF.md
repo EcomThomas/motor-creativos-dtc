@@ -139,7 +139,9 @@ El resto del trabajo (editar docs, workflows, specs, plantillas, builders locale
 
 - **Estado:** scaffold + 6 docs de método + spec + interfaz + plantilla de input **montado**, y **P0 (corribilidad end-to-end) cerrado**: Fase 0 (intake+snapshot), config de defaults, VoC cableado, orquestador y capa de persistencia — el motor ya corre de punta a punta (ver `RUNBOOK.md`). Falta la **validación viva con un Spine real**, P1 (compliance por categoría + roadmap idempotente) y P2 (conexiones al resto del pipeline).
 - **Fecha de este handoff:** 2026-07-05 (actualizado esta sesión).
-- **Próximo paso recomendado:** correr `wf_motor.js` con un Spine + scripts reales (primer caso de referencia dentro de este repo, P3) para validar la calidad del output; en paralelo, atacar P1 (roadmap idempotente — hoy `build_roadmap.py` hace append y duplica al re-correr).
+- **Próximo paso recomendado:** correr `wf_motor.js` con un Spine + scripts reales (primer caso de referencia dentro de este repo, P3) para validar la calidad del output, ya con el entregable ClickUp y el hook gate activos.
+
+> **Cambio de salida (importante).** El motor **ya NO vuelca al Excel** "Creative Roadmap" (se hacía a mano, se corrompía, demasiada info). La Fase 3 entrega ahora el **formato ClickUp** (tarea madre + subtareas en texto plano) vía `scripts/clickup_export.py`, según el prompt de batch del equipo. Flujo: baches en ClickUp → flujo del dueño → Media Buying genera reporte / lo lleva al Growth Guide. `metodo/06` (Excel) y `build_roadmap.py` quedan **legacy**. El bache se extendió con `sub_avatar`, `valence`, `emociones_83`, `trigger_batch` y, por pieza, `nombre_creativo`/`concepto_corto`/`trigger_emocional` (ver `metodo/08`). Esto **cierra el P1 de "roadmap idempotente"**: ya no aplica (no hay Excel).
 
 ---
 
@@ -151,7 +153,10 @@ El resto del trabajo (editar docs, workflows, specs, plantillas, builders locale
 | `RUNBOOK.md` | Cómo correr el motor end-to-end (modelo de 2 capas: Python valida/escribe, Workflow genera). |
 | `scripts/motor_config.py` | Loader de `config.json` + helpers de paths (`case_paths`, `slugify`). |
 | `scripts/intake.py` | Fase 0: valida Spine (INTERFACE §6/§8) + congela snapshot (§5). |
-| `scripts/persist.py` | Fases 3-4: escribe el bundle del orquestador a `casos/<slug>/` (+ opcional Excel/docx). |
-| `scripts/wf_motor.js` | Orquestador: Fase 1→2→4 en una corrida, VoC-wired, devuelve el bundle. |
-| `scripts/wf_baches.js`·`wf_imitaciones.js`·`wf_briefs.js` | Ahora aceptan `vocPath` (contrato VoC INTERFACE §4). |
+| `scripts/persist.py` | Escribe el bundle (datos + briefs) a `casos/<slug>/`. Ya NO toca Excel. |
+| `scripts/clickup_export.py` | **Fase 3 (nueva salida):** genera el entregable ClickUp (tarea madre + subtareas) por bache. |
+| `scripts/wf_motor.js` | Orquestador: Fase 1→2→4 en una corrida, VoC-wired, hook gate + cold-traffic, campos ClickUp; devuelve el bundle. |
+| `scripts/wf_baches.js`·`wf_imitaciones.js`·`wf_briefs.js` | `vocPath` + hook gate + campos ClickUp (`valence`, `emociones_83`, `trigger_*`, etc.). |
 | `scripts/md2docx.py` | Refactor: ahora es importable (`convert`, `convert_folder`) además de CLI. |
+| `metodo/07`, `metodo/08` | Banco de técnicas EVOLVE+EAM · Formato del entregable ClickUp. |
+| `scripts/build_roadmap.py`, `metodo/06` | **LEGACY** (Excel, fuera del flujo estándar). |

@@ -34,24 +34,31 @@ const VOC_RULE = VOC
 const AW = ['Unaware', 'Problem Aware', 'Solution Aware', 'Product Aware', 'Most Aware']
 const AD = {
   type: 'object', additionalProperties: false,
-  required: ['classification', 'ad_format', 'copy', 'nota'],
+  required: ['classification', 'ad_format', 'copy', 'nota', 'nombre_creativo', 'concepto_corto', 'trigger_emocional'],
   properties: {
     classification: { type: 'string', enum: ['Imitation', 'Iteration', 'Ideation'] },
     ad_format: { type: 'string', enum: ['Video', 'Static'] },
     copy: { type: 'string' },
     nota: { type: 'string', description: 'qué imita/itera/idea + competidor de referencia o ID de VoC' },
+    nombre_creativo: { type: 'string', description: 'nombre interno claro y utilizable de la pieza (para ClickUp)' },
+    concepto_corto: { type: 'string', description: 'idea PUNTUAL de esta pieza, breve, para el título de subtarea' },
+    trigger_emocional: { type: 'string', description: 'qué activa la respuesta emocional del avatar en ESTA pieza' },
   },
 }
 const PATCH = {
   type: 'object', additionalProperties: false,
-  required: ['concept', 'angle', 'avatar', 'mass_desire', 'awareness', 'hypothesis', 'ads'],
+  required: ['concept', 'angle', 'avatar', 'sub_avatar', 'mass_desire', 'awareness', 'hypothesis', 'valence', 'emociones_83', 'trigger_batch', 'ads'],
   properties: {
     concept: { type: 'string', description: 'nombre pegajoso del concepto' },
     angle: { type: 'string' },
     avatar: { type: 'string' },
+    sub_avatar: { type: 'string', description: 'segmento específico dentro del avatar (edad/situación/dolor puntual)' },
     mass_desire: { type: 'string', description: 'formato "Quiero..."' },
     awareness: { type: 'string', enum: AW },
     hypothesis: { type: 'string' },
+    valence: { type: 'string', enum: ['Positiva', 'Negativa', 'Mixta'], description: 'valence emocional dominante del batch (anclada en la emoción troncal del Spine)' },
+    emociones_83: { type: 'array', minItems: 1, maxItems: 3, items: { type: 'string' }, description: 'las 1-3 emociones que cubren ~83% del batch, no inventadas' },
+    trigger_batch: { type: 'string', description: 'trigger emocional troncal del batch (se hereda a piezas sin trigger propio)' },
     ads: { type: 'array', minItems: M, maxItems: M, items: AD },
   },
 }

@@ -9,7 +9,7 @@ El motor tiene **dos capas** que corren en sitios distintos:
 | Capa | Qué hace | Dónde corre | Acceso a disco |
 |------|----------|-------------|----------------|
 | **Generación** (`scripts/wf_*.js`) | Escribe baches, imitaciones y briefs con agentes | Sandbox de **Workflow** (lo invoca Claude) | **NO** — genera y *devuelve* datos |
-| **Persistencia/validación** (`scripts/*.py`) | Valida input, congela snapshot, escribe el caso a disco, puebla el Excel | Terminal (Python) | Sí |
+| **Persistencia/validación** (`scripts/*.py`) | Valida input, congela snapshot, escribe el caso a disco, genera el entregable ClickUp | Terminal (Python) | Sí |
 
 Por eso el flujo alterna: **Python valida y congela** → **Workflow genera** → **Python escribe**. Los workflows no pueden tocar archivos; solo los agentes que lanzan leen los paths que se les pasan (Spine, scripts, VoC).
 
@@ -79,26 +79,38 @@ Claude guarda ese bundle a un archivo, p. ej. `casos/<slug>/bundle.json`.
 
 ---
 
-## Paso 3 — Fases 3·4: persistir (escribir el caso a disco)
+## Paso 3 — persistir los datos + briefs a disco
 
 ```bash
-python scripts/persist.py --bundle casos/<slug>/bundle.json [--docx] [--xlsx plantilla_roadmap.xlsx]
+python scripts/persist.py --bundle casos/<slug>/bundle.json [--docx]
 ```
 
 Escribe en `casos/<slug>/`:
 
-- `baches/batches_meta.json` — los N baches con sus ads (compatible con `build_roadmap.py`).
-- `baches/roadmap_rows.json` — una fila por ad con las columnas de la convención (A..U).
+- `baches/batches_meta.json` — los N baches con sus ads (fuente de verdad de la corrida).
 - `scripts-ads/ads.json` — lista plana de anuncios.
-- `briefs/bache-<n>-<slug>.md` — el brief de producción por bache.
-- `briefs/*.docx` — si pasas `--docx`.
-- Si pasas `--xlsx <plantilla.xlsx>` (con la hoja *Creative Roadmap* ya montada y sus dropdowns), además **puebla** el Excel vía `build_roadmap.py`.
+- `briefs/bache-<n>-<slug>.md` — el brief de producción por bache (+ `.docx` si `--docx`).
+
+> El motor **ya NO vuelca al Excel**. El entregable operativo se genera en el Paso 4.
 
 ---
 
-## Paso 4 — Fase 5: handoff a Media Buying (Etapa 3)
+## Paso 4 — Fase 3: entregable ClickUp (lo que se pega/pasa al flujo)
 
-`roadmap_rows.json` (o el Excel poblado) es la superficie accionable: cada fila = un asset a producir y lanzar, con su bache, awareness e hipótesis. El media buyer mapea `ad → campaña/adset` y la nomenclatura amarra cada asset a su fila para que el feedback (Etapa 4) vuelva trazable al bache/hipótesis. Ver Fase 5 del Spec Operativo.
+```bash
+python scripts/clickup_export.py --bundle casos/<slug>/bundle.json \
+  --batch-num 7 --producto "<PRODUCTO>" --plataforma "Meta" \
+  --carpeta "<LINK carga>" --cta "<LINK destino CTA>" \
+  --assets "Asset 1 — <link>; Asset 2 — <link>"
+```
+
+Genera `casos/<slug>/clickup/batch_<N>.txt` por bache: **etiqueta corta + tarea madre + subtareas** en texto plano, pegable en ClickUp (formato de [metodo/08](metodo/08%20—%20Entregable%20ClickUp%20(tarea%20madre%20+%20subtareas).md)). Los links y el número de batch los pones aquí; lo que falte queda como `[LINK]`/`[FALTA DEFINIR]`. El campo `Brief` queda como placeholder (el brief real es el `.md` del Paso 3).
+
+---
+
+## Paso 5 — Fase 5: handoff a Media Buying (Etapa 3)
+
+El `.txt` de cada bache se pega en ClickUp como tarea madre + subtareas. Desde ahí el dueño lo pasa a su flujo y el equipo de Media Buying genera el reporte / lo lleva al Growth Guide. La trazabilidad (bache, hipótesis, valence/emoción) viaja en la tarea madre; el brief de producción (paridad emocional) viaja como documento externo referenciado por el placeholder `Brief`.
 
 ---
 

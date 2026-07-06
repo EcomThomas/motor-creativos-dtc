@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 """
+[LEGACY / DEPRECADO] — El motor ya NO vuelca al Excel por defecto (se hacía a mano y el
+archivo se corrompía / era demasiada info). El entregable de Fase 3 es ahora el formato
+ClickUp (tarea madre + subtareas) de `clickup_export.py`. Este script se conserva solo por
+si alguien quiere poblar un Excel manualmente; no forma parte del flujo estándar.
+
 build_roadmap.py — Vuelca baches a la hoja "Creative Roadmap" de un Excel, respetando
 los valores de dropdown (validaciones) del template. Product-agnostic.
 

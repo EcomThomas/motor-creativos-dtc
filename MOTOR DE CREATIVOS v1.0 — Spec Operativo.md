@@ -156,24 +156,21 @@ Ad (genérico) = {
 
 ---
 
-## Fase 3 — Volcado a Creative Roadmap
+## Fase 3 — Entregable ClickUp (tarea madre + subtareas)
 
-**Input**: los N baches (Fase 1) + sus N × M ads (Fase 2).
+> **Cambio de salida.** El motor **ya NO vuelca al Excel "Creative Roadmap"** (se llenaba a mano, se corrompía y cargaba demasiada info). La salida de Fase 3 es ahora el **formato ClickUp**: por cada bache, una **tarea madre + N subtareas en texto plano** pegables. El detalle canónico está en [metodo/08](metodo/08%20—%20Entregable%20ClickUp%20(tarea%20madre%20+%20subtareas).md). El Excel ([metodo/06](metodo/06%20—%20Convención%20Creative%20Roadmap%20(Excel).md)) queda como legacy manual.
 
-**Output**: la hoja **"Creative Roadmap"** (Excel) poblada. Estructura sugerida de columnas, una fila por **ad** (con las columnas de bache repetidas o agrupadas):
+**Input**: los N baches (Fase 1) + sus N × M ads (Fase 2), con los campos del formato ClickUp (`sub_avatar`, `valence`, `emociones_83`, `trigger_batch`; y por pieza `nombre_creativo`, `concepto_corto`, `trigger_emocional`) + el INPUT operativo del humano (número de batch, links de carga y CTA, assets).
 
-| Batch # | Concept | Angle | Avatar | Mass Desire | Awareness | Hypothesis | Ad # | Ad Type / Imita | Format | Copy | Nota (traza: competidor + EVxxxx) | Estado |
-|---------|---------|-------|--------|-------------|-----------|------------|------|-----------------|--------|------|-----------------------------------|--------|
+**Output**: por bache, un `.txt` con **etiqueta corta + tarea madre + subtareas** (`casos/<slug>/clickup/batch_<N>.txt`), listo para pegar en ClickUp. Lo genera de forma determinística `scripts/clickup_export.py`.
 
-- **Estado** arranca en `Borrador` → `Aprobado` → `En producción` → `Live` → `Ganador/Perdedor` (lo va moviendo el pipeline en fases 4–5 y el feedback de Etapa 4).
-- Una fila por ad mantiene el roadmap accionable para el media buyer (cada fila es un asset a producir y lanzar).
-
-**Quién lo hace**: el workflow escribe el Excel; un humano revisa que el volcado sea fiel y ordena prioridad de test.
+**Quién lo hace**: el workflow genera los campos creativos; `clickup_export.py` ensambla el texto; el humano completa los links y pega en ClickUp, desde donde pasa a su flujo y al equipo de Media Buying.
 
 **Criterio de "hecho bien"**
-- Cada ad del lote aparece **una sola vez**, con su bache correctamente asociado.
-- La columna de traza permite auditar cualquier ad (qué imita, qué VoC lo sostiene).
-- La hoja es **ordenable/filtrable** por bache, awareness y estado.
+- Formato exacto de [metodo/08](metodo/08%20—%20Entregable%20ClickUp%20(tarea%20madre%20+%20subtareas).md): sin tablas, texto plano, tarea madre primero, una subtarea por pieza.
+- El campo **`Brief` de cada subtarea queda como placeholder** (el brief real es el documento de Fase 4).
+- `valence`/`emociones_83`/`trigger` vienen del batch (no inventados en el export); trigger heredado se marca `[HEREDADO DEL BATCH]`.
+- Títulos `V<k>`/`G<k> BATCH #<N> - <concepto corto>` numerados por tipo de pieza.
 
 ---
 

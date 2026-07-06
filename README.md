@@ -24,7 +24,7 @@ El motor es la **ETAPA 2** de un pipeline de 4 etapas que se retroalimenta en ci
 ```
 
 - **Entra:** el Spine (veredicto estratégico) + scripts ganadores del competidor + (opcional) banco VoC con IDs de evidencia.
-- **Sale:** N baches de creativos, cada uno con M anuncios (por defecto 3, mayoritariamente imitaciones), volcados a la hoja **Creative Roadmap** + un **brief de producción** por bache.
+- **Sale:** N baches de creativos, cada uno con M anuncios (por defecto 3, mayoritariamente imitaciones), entregados en **formato ClickUp** (tarea madre + subtareas) + un **brief de producción** por bache.
 
 ## Regla núcleo
 
@@ -52,14 +52,18 @@ motor-creativos-dtc/
 │   ├── 03 — Imitación (clonar un ganador y re-anclar).md
 │   ├── 04 — Brief (storyboard + paridad emocional).md
 │   ├── 05 — Compliance de creativos.md
-│   └── 06 — Convención Creative Roadmap (Excel).md
+│   ├── 06 — Convención Creative Roadmap (Excel).md   <- LEGACY (el Excel ya no se usa)
+│   ├── 07 — Banco de técnicas de guion y hook (EVOLVE + EAM).md
+│   └── 08 — Entregable ClickUp (tarea madre + subtareas).md  <- salida de Fase 3
 ├── scripts/                                        <- generación (Workflow) + persistencia (Python)
 │   ├── wf_motor.js                                 <- ORQUESTADOR end-to-end (Fase 1→2→4)
 │   ├── wf_baches.js · wf_imitaciones.js · wf_briefs.js  <- workflows por fase (uso granular)
 │   ├── intake.py                                   <- Fase 0: valida input + congela snapshot
-│   ├── persist.py                                  <- Fases 3-4: escribe el bundle a casos/<slug>/
+│   ├── persist.py                                  <- escribe el bundle (datos + briefs) a casos/<slug>/
+│   ├── clickup_export.py                           <- Fase 3: entregable ClickUp (tarea madre + subtareas)
 │   ├── motor_config.py                             <- loader de config.json + helpers de paths
-│   └── build_roadmap.py · md2docx.py               <- builders de Excel y Word
+│   ├── md2docx.py                                  <- briefs .md → .docx
+│   └── build_roadmap.py                            <- LEGACY (volcado a Excel, fuera del flujo)
 ├── plantillas/                                     <- moldes de entrada/salida
 │   └── INPUT — Spine (plantilla).md
 └── casos/                                          <- ejecuciones de referencia (un producto por caso)
@@ -72,8 +76,9 @@ La secuencia operativa completa está en **[`RUNBOOK.md`](RUNBOOK.md)**. En resu
 1. **Lee `INTERFACE — Contrato con el Motor de Research.md`** y consigue el INPUT: **Spine** + **2–5 scripts ganadores** del competidor (+ banco **VoC** opcional con IDs `EVxxxx`). Sin un Spine válido, el motor no arranca.
 2. **Fase 0 — `python scripts/intake.py …`**: valida el Spine (bloquea si falta un obligatorio) y congela el snapshot en `casos/<slug>/input/`.
 3. **Fases 1·2·4 — `Workflow(scriptPath: scripts/wf_motor.js, args)`**: el orquestador genera N baches → M imitaciones re-ancladas por bache → un brief por bache, y devuelve el *bundle*.
-4. **Fases 3·4 — `python scripts/persist.py --bundle … [--docx] [--xlsx]`**: escribe baches, ads, briefs y `roadmap_rows.json` a `casos/<slug>/` (y opcional puebla el Excel).
-5. **Fase 5 — handoff a Media Buying**: cada fila del roadmap = un asset a producir/lanzar, trazable a su bache e hipótesis.
+4. **Persistir — `python scripts/persist.py --bundle … [--docx]`**: escribe baches, ads y briefs a `casos/<slug>/`.
+5. **Fase 3 (entregable) — `python scripts/clickup_export.py --bundle … --batch-num N --carpeta LINK --cta LINK`**: genera por bache un `.txt` con **tarea madre + subtareas** para pegar en ClickUp (el Excel ya no se usa).
+6. **Fase 5 — handoff a Media Buying**: se pega en ClickUp → tu flujo → el equipo genera el reporte / lo lleva al Growth Guide.
 
 Los defaults (N=5, M=3, ángulos base) están en [`config.json`](config.json). Para iterar una sola fase, usa los workflows granulares (`wf_baches`/`wf_imitaciones`/`wf_briefs`) — ver RUNBOOK.
 

@@ -1,4 +1,9 @@
-# Convención de la hoja "Creative Roadmap" (Excel)
+# Convención de la hoja "Creative Roadmap" (Excel) — [LEGACY]
+
+> ⚠️ **LEGACY / no es el flujo estándar.** El motor **ya no vuelca al Excel** (se llenaba a mano, se corrompía y cargaba demasiada info). El entregable de Fase 3 es ahora el **formato ClickUp** ([metodo/08](08%20—%20Entregable%20ClickUp%20(tarea%20madre%20+%20subtareas).md)). Esta convención se conserva solo por si alguien quiere poblar un Excel manualmente.
+
+---
+
 
 Este documento define la hoja **Creative Roadmap**: la superficie donde el Motor de Creativos (ETAPA 2) vuelca sus baches y anuncios, y donde luego Media Buying (ETAPA 3) registra resultados que alimentan el feedback (ETAPA 4). Es una convención **product-agnostic**: la misma estructura se copia tal cual a cualquier producto DTC; lo específico (`<PRODUCTO>`, `<AVATAR>`, `<DESEO>`, etc.) entra por el INPUT (Spine + scripts ganadores).
 

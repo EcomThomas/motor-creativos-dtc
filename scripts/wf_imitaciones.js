@@ -34,9 +34,12 @@ const VOC_BLOCK = VOC
 
 const AD = {
   type: 'object', additionalProperties: false,
-  required: ['imita_competidor', 'ad_format', 'copy', 'nota'],
+  required: ['imita_competidor', 'ad_format', 'copy', 'nota', 'nombre_creativo', 'concepto_corto', 'trigger_emocional'],
   properties: {
     imita_competidor: { type: 'string', description: 'competidor/ad cuya estructura se imita (del archivo de scripts)' },
+    nombre_creativo: { type: 'string', description: 'nombre interno claro y utilizable de la pieza (para ClickUp)' },
+    concepto_corto: { type: 'string', description: 'idea PUNTUAL de esta pieza, breve, para el título de subtarea' },
+    trigger_emocional: { type: 'string', description: 'qué activa la respuesta emocional del avatar en ESTA pieza' },
     ad_format: { type: 'string', enum: ['Video', 'Static'] },
     copy: { type: 'string', description: 'guion/copy completo, listo para producir, en el registro del mercado del Spine' },
     nota: { type: 'string', description: 'qué estructura se conservó + qué se re-ancló + IDs de VoC que lo sostienen' },

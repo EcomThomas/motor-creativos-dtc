@@ -15,6 +15,7 @@
     "awareness": ["Unaware", "Problem Aware", "Solution Aware", "Product Aware", "Most Aware"],
     "classification": ["Imitation", "Iteration", "Ideation"],
     "ad_format": ["Video", "Static"],
+    "valence": ["Positiva", "Negativa", "Mixta"],
     "roadmap_status": ["Ideando", "Working", "Learning", "Filming", "Done"]
   },
 

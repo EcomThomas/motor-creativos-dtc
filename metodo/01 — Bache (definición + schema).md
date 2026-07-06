@@ -31,6 +31,10 @@ Un bache **no** es un ángulo suelto, **no** es un solo anuncio, y **no** es un 
   "mass_desire": "Quiero <resultado que el avatar ya anhela, en su lenguaje>",
   "awareness": "Unaware | Problem Aware | Solution Aware | Product Aware | Most Aware",
   "hypothesis": "Si <ángulo/mensaje> a <avatar> apelando a <deseo>, entonces <resultado esperado> porque <razón anclada en VoC/prueba>.",
+  "sub_avatar": "<segmento específico dentro del avatar: edad, situación, dolor puntual>",
+  "valence": "Positiva | Negativa | Mixta",
+  "emociones_83": ["<emoción 1>", "<emoción 2>", "<emoción 3>"],
+  "trigger_batch": "<trigger emocional troncal del batch>",
   "spine_refs": {
     "villain": "<villano del Spine que este bache activa>",
     "mechanism": "<UMP/UMS/USP que sostiene la promesa>",
@@ -45,7 +49,10 @@ Un bache **no** es un ángulo suelto, **no** es un solo anuncio, y **no** es un 
       "ad_role": "<rol del anuncio: hook-test | prueba-social | demo-mecanismo | testimonio | ...>",
       "ad_format": "Video | Static",
       "copy": "<copy principal / guion del anuncio>",
-      "nota": "<qué variable cambia este anuncio respecto a sus hermanos del bache>"
+      "nota": "<qué variable cambia este anuncio respecto a sus hermanos del bache>",
+      "nombre_creativo": "<nombre interno claro y utilizable de la pieza (para ClickUp)>",
+      "concepto_corto": "<idea puntual de esta pieza, breve — va en el título de la subtarea>",
+      "trigger_emocional": "<qué activa la respuesta emocional del avatar en ESTA pieza>"
     }
   ]
 }
