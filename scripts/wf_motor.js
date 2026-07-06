@@ -168,7 +168,7 @@ Por CADA ad:
 Descompon TODO el script en escenas (una fila por beat).
 
 **Arco emocional (throughline):** como escala la emocion, donde esta el pico, como la resolucion empuja al CTA.
-**Prompts de generacion (IA):** 2-3 escenas clave, prompt visual listo para pegar en un generador de imagen/video.
+**Prompts de generacion (IA) — OBLIGATORIO: UNO POR CADA ESCENA del storyboard, tantos prompts como FILAS tenga la tabla, sin saltarte ninguna (Escena 1, 2, 3 ... hasta la ultima):** por cada escena, un prompt visual COMPLETO y autosuficiente (sujeto + accion/expresion + encuadre + luz + color + emocion + estilo + 9:16) listo para pegar en un generador de imagen/video.
 (Si el ad es Static: entrega el LAYOUT visual jerarquico con la misma logica de paridad + prompts de generacion.)
 
 ## 4. Checklist de rodaje/entrega del bache

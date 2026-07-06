@@ -79,6 +79,18 @@ def tipo_ad_batch(b):
     return CLASSIFICACION_ES.get(top, top.upper())
 
 
+def _short(text, maxlen=70):
+    """Versión corta para la etiqueta: corta en el primer ':' o '.', o a maxlen chars."""
+    if not text:
+        return FALTA
+    t = str(text).strip()
+    for sep in (":", ". ", " —", " ("):
+        i = t.find(sep)
+        if 0 < i <= maxlen:
+            return t[:i].strip()
+    return (t[:maxlen].rsplit(" ", 1)[0] + "…") if len(t) > maxlen else t
+
+
 def render_etiqueta(b, n, producto, plataforma):
     emos = b.get("emociones_83") or []
     valence = val(b.get("valence"))
@@ -86,7 +98,7 @@ def render_etiqueta(b, n, producto, plataforma):
     partes = [
         f"BATCH #{n} · {val(producto)}",
         val(b.get("awareness")),
-        val(b.get("angle")),
+        _short(b.get("angle")),
         batch_formato(b.get("ads", [])),
         val(plataforma),
         ve,
@@ -188,7 +200,8 @@ def main():
 
     with open(args.bundle, encoding="utf-8") as f:
         bundle = json.load(f)
-    producto = args.producto or bundle.get("producto") or FALTA
+    producto = args.producto or bundle.get("producto") or FALTA          # nombre para la ETIQUETA (display)
+    path_producto = bundle.get("producto") or args.producto or "caso"     # define casos/<slug>/ (no lo cambia --producto)
     plataforma = args.plataforma or bundle.get("plataforma")
     assets = parse_assets(args.assets)
     batches = bundle.get("batches", [])
@@ -196,7 +209,7 @@ def main():
         print("ERROR: el bundle no trae 'batches'.", file=sys.stderr)
         sys.exit(1)
 
-    paths = ensure_dirs(case_paths(producto, root=args.root))
+    paths = ensure_dirs(case_paths(path_producto, root=args.root))
     outdir = os.path.join(paths["base"], "clickup")
     os.makedirs(outdir, exist_ok=True)
 

@@ -168,18 +168,19 @@ Confirma que este arco **ejecuta** el arco troncal del bache (sección 1) con el
 - **Ritmo de edición:** `<cortes rápidos en el hook, respiración en el clímax, etc.>`
 - **Grafismos/overlays:** `<estilo de kinetic text, flechas, círculos de énfasis>`
 
-#### Prompts de generación IA (escenas clave)
+#### Prompts de generación IA (uno por CADA escena del storyboard)
 
-Para las escenas que se generen con IA (imagen/video), da el prompt listo para pegar. Incluye sujeto, encuadre, luz, emoción, estilo y specs.
+**Regla:** un prompt por **CADA escena** del storyboard — tantos prompts como filas tenga la tabla, sin saltarte ninguna (Escena 1, 2, 3 … hasta la última). Cada prompt es autosuficiente: sujeto + acción/expresión + encuadre + luz + color + emoción + estilo + aspect ratio. El editor debe poder generar cada plano sin adivinar.
 
-- **Escena `<#>` (`<qué plano>`):**
+- **Escena `1` (`<qué plano>`):**
   ```
   <PROMPT IA verbatim: sujeto + acción + encuadre + luz + color + emoción + estilo + aspect ratio>
   ```
-- **Escena `<#>` (`<qué plano>`):**
+- **Escena `2` (`<qué plano>`):**
   ```
   <PROMPT IA verbatim>
   ```
+- **… (una entrada por cada fila del storyboard, hasta la última escena)**
 
 ---
 
@@ -219,7 +220,7 @@ Para las escenas que se generen con IA (imagen/video), da el prompt listo para p
 - **Ritmo de edición:** `<...>`
 - **Grafismos/overlays:** `<...>`
 
-#### Prompts de generación IA (escenas clave)
+#### Prompts de generación IA (uno por CADA escena del storyboard)
 
 - **Escena `<#>`:**
   ```
@@ -264,7 +265,7 @@ Para las escenas que se generen con IA (imagen/video), da el prompt listo para p
 - **Ritmo de edición:** `<...>`
 - **Grafismos/overlays:** `<...>`
 
-#### Prompts de generación IA (escenas clave)
+#### Prompts de generación IA (uno por CADA escena del storyboard)
 
 - **Escena `<#>`:**
   ```
@@ -305,7 +306,7 @@ Antes de mandar a producir y antes de dar por cerrado el bache. Marca cada ítem
 - [ ] Formato/aspect ratio, resolución y duración según specs.
 - [ ] Subtítulos quemados y captions con el estilo definido.
 - [ ] Safe zones respetadas.
-- [ ] Prompts de generación IA listos para las escenas que lo requieran.
+- [ ] Prompts de generación IA: **uno por cada escena** del storyboard (tantos como filas de la tabla, sin saltarse ninguna), autosuficientes.
 - [ ] Volcado del bache al **Creative Roadmap** (Excel) actualizado.
 - [ ] Nombres de archivo/versión: `<convención: BATCH-N_ADx_vY>`.
 

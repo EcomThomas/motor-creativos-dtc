@@ -16,5 +16,7 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# --- Salidas locales pesadas por caso (los entregables versionables van sin /output) ---
-casos/*/output/
+# --- Casos reales = DATA DE CLIENTE: quedan LOCALES por defecto (Spine, scripts, ads, briefs) ---
+# El método (metodo/, scripts/) sí se versiona; los casos concretos no, salvo decisión explícita.
+casos/*/
+
