@@ -8,23 +8,28 @@ export const meta = {
 // args esperados:
 // {
 //   spinePath: "ruta/al/Spine.md",
+//   vocPath:   "ruta/al/voc_bank.md",   // OPCIONAL: banco VoC con IDs EVxxxx
 //   bundles: [ { n, slug, meta:{concept,angle,avatar,mass_desire,awareness,hypothesis}, ads:[{ad_format, copy, imita_competidor?, nota?}] }, ... ]
 // }
 // Devuelve { briefs: [ { n, slug, md } ] }.
 // -------------------------------------------------------------------
 const A = args || {}
 const SPINE = A.spinePath
+const VOC = A.vocPath || null
 const bundles = A.bundles || []
 if (!SPINE || !bundles.length) {
   throw new Error('wf-briefs requiere args.spinePath y args.bundles[]')
 }
+const VOC_SRC = VOC
+  ? `\n- Banco VoC (lenguaje literal del mercado, con IDs EVxxxx): "${VOC}". Úsalo para que las líneas y las escenas de PRUEBA suenen a boca real del avatar; no inventes IDs.`
+  : ''
 
 phase('Briefs')
 const briefs = await parallel(bundles.map((b, i) => () => agent(
 `Eres director creativo + guionista de performance ads DTC (metodología Schwartz). Entregable: el BRIEF DE PRODUCCIÓN COMPLETO del BACHE #${b.n || (i + 1)}, en MARKDOWN, listo para que un editor/productor (o un motor de generación de video IA) lo ejecute sin más contexto.
 
 FUENTES:
-- Spine (frame estratégico y emocional VIGENTE, fuente de verdad del re-anclaje y del compliance): "${SPINE}"
+- Spine (frame estratégico y emocional VIGENTE, fuente de verdad del re-anclaje y del compliance): "${SPINE}"${VOC_SRC}
 - Metadata y anuncios de ESTE bache (los scripts ya están escritos, van VERBATIM, NO los reescribas): ${JSON.stringify(b)}
 
 OBJETIVO CENTRAL:

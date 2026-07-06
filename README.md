@@ -41,9 +41,11 @@ Tres ideas cargan esta regla:
 ```
 motor-creativos-dtc/
 ├── README.md                                      <- este documento: qué es y cómo empezar
+├── RUNBOOK.md                                      <- cómo correr el motor end-to-end (secuencia operativa)
 ├── HANDOFF.md                                     <- estado vivo, decisiones y backlog de refinamiento
+├── config.json                                    <- fuente única de defaults (N, M, awareness, ángulos base, paths)
 ├── MOTOR DE CREATIVOS v1.0 — Spec Operativo.md    <- la máquina: fases, schemas, criterios de "hecho bien"
-├── INTERFACE — Contrato con el Motor de Research.md <- contrato de entrada (Spine + scripts ganadores)
+├── INTERFACE — Contrato con el Motor de Research.md <- contrato de entrada (Spine + scripts ganadores + VoC)
 ├── metodo/                                         <- el método (lo reusable)
 │   ├── 01 — Bache (definición + schema).md
 │   ├── 02 — Clasificación (imitación · iteración · ideación).md
@@ -51,9 +53,13 @@ motor-creativos-dtc/
 │   ├── 04 — Brief (storyboard + paridad emocional).md
 │   ├── 05 — Compliance de creativos.md
 │   └── 06 — Convención Creative Roadmap (Excel).md
-├── scripts/                                        <- los workflows del motor + utilidades
-│   ├── wf_baches.js · wf_imitaciones.js · wf_briefs.js
-│   └── build_roadmap.py · md2docx.py
+├── scripts/                                        <- generación (Workflow) + persistencia (Python)
+│   ├── wf_motor.js                                 <- ORQUESTADOR end-to-end (Fase 1→2→4)
+│   ├── wf_baches.js · wf_imitaciones.js · wf_briefs.js  <- workflows por fase (uso granular)
+│   ├── intake.py                                   <- Fase 0: valida input + congela snapshot
+│   ├── persist.py                                  <- Fases 3-4: escribe el bundle a casos/<slug>/
+│   ├── motor_config.py                             <- loader de config.json + helpers de paths
+│   └── build_roadmap.py · md2docx.py               <- builders de Excel y Word
 ├── plantillas/                                     <- moldes de entrada/salida
 │   └── INPUT — Spine (plantilla).md
 └── casos/                                          <- ejecuciones de referencia (un producto por caso)
@@ -61,18 +67,19 @@ motor-creativos-dtc/
 
 ## Quickstart
 
-Para correr el motor en un producto nuevo:
+La secuencia operativa completa está en **[`RUNBOOK.md`](RUNBOOK.md)**. En resumen, el motor alterna dos capas — **Python valida/escribe** (tiene disco) y **Workflow genera** (lo invoca Claude, sin disco):
 
-1. **Lee `INTERFACE — Contrato con el Motor de Research.md`.** Entiende el contrato exacto: qué campos del Spine necesitas y en qué forma llegan los scripts ganadores del competidor. Sin un Spine válido, el motor no arranca.
-2. **Consigue el INPUT.** Trae de la Etapa 1 el **Spine** (avatar, deseo masivo #1, emoción troncal, mecanismo, villano, prueba, objeción raíz, awareness, compliance) y **2–5 scripts ganadores** del competidor (transcripciones de un ad-spy tipo TrendTrack; "ganador" = muchos días corriendo / alto reach).
-3. **Corre `wf_baches`.** Genera los N conceptos creativos (baches): cada uno alinea ángulo + avatar + deseo masivo + hipótesis + nivel de awareness.
-4. **Corre `wf_imitaciones`.** Por cada bache, produce los M anuncios (por defecto 3), mayoritariamente imitaciones de ganadores re-ancladas al Spine.
-5. **Vuelca a `Creative Roadmap`.** Escribe cada anuncio como fila en la hoja (Excel), usando la plantilla de fila.
-6. **Corre `wf_briefs`.** Por bache, genera el brief de producción: script + storyboard con paridad emocional + prompts de generación.
+1. **Lee `INTERFACE — Contrato con el Motor de Research.md`** y consigue el INPUT: **Spine** + **2–5 scripts ganadores** del competidor (+ banco **VoC** opcional con IDs `EVxxxx`). Sin un Spine válido, el motor no arranca.
+2. **Fase 0 — `python scripts/intake.py …`**: valida el Spine (bloquea si falta un obligatorio) y congela el snapshot en `casos/<slug>/input/`.
+3. **Fases 1·2·4 — `Workflow(scriptPath: scripts/wf_motor.js, args)`**: el orquestador genera N baches → M imitaciones re-ancladas por bache → un brief por bache, y devuelve el *bundle*.
+4. **Fases 3·4 — `python scripts/persist.py --bundle … [--docx] [--xlsx]`**: escribe baches, ads, briefs y `roadmap_rows.json` a `casos/<slug>/` (y opcional puebla el Excel).
+5. **Fase 5 — handoff a Media Buying**: cada fila del roadmap = un asset a producir/lanzar, trazable a su bache e hipótesis.
+
+Los defaults (N=5, M=3, ángulos base) están en [`config.json`](config.json). Para iterar una sola fase, usa los workflows granulares (`wf_baches`/`wf_imitaciones`/`wf_briefs`) — ver RUNBOOK.
 
 ## Estado
 
-**v1.0 — scaffold.** La arquitectura, el vocabulario canónico y los contratos están definidos; los workflows y plantillas están en su primera versión y **pendientes de refinar** con casos reales. Espera ajustes en el schema del bache, el formato del brief y las reglas de volcado a Creative Roadmap conforme se corran productos.
+**v1.0 — corrible end-to-end.** La arquitectura, el vocabulario canónico y los contratos están definidos, y el motor ya **corre de punta a punta**: Fase 0 (intake + snapshot), orquestador (`wf_motor`), VoC cableado, config de defaults y capa de persistencia (ver `RUNBOOK.md` y `HANDOFF.md`). **Pendiente:** validación viva con un Spine real (primer caso dentro del repo), compliance por categoría y roadmap idempotente. Espera ajustes en el schema del bache y el formato del brief conforme se corran productos.
 
 ## Seguridad
 

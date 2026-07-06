@@ -1,7 +1,18 @@
+# -*- coding: utf-8 -*-
+"""md2docx.py — Convierte los .md de una carpeta a .docx (usado para los briefs).
+
+Uso CLI:   python md2docx.py <carpeta_con_md>
+Importable: from md2docx import convert; convert(md_path, out_path)
+"""
 import sys, re, glob, os
 from docx import Document
 from docx.shared import Pt, RGBColor, Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
 
 def add_runs(p, text):
     # split on **bold** and `code`
@@ -68,13 +79,19 @@ def convert(md_path, out_path):
     doc.save(out_path)
     return out_path
 
-folder = sys.argv[1]
-done = []
-for md in sorted(glob.glob(folder + '/*.md')):
-    out = md[:-3] + '.docx'
-    try:
-        convert(md, out); done.append(os.path.basename(out))
-    except Exception as e:
-        print('ERR', os.path.basename(md), e)
-for d in done: print('  ->', d)
-print(f'{len(done)} archivos Word creados')
+def convert_folder(folder):
+    done = []
+    for md in sorted(glob.glob(folder + '/*.md')):
+        out = md[:-3] + '.docx'
+        try:
+            convert(md, out); done.append(os.path.basename(out))
+        except Exception as e:
+            print('ERR', os.path.basename(md), e)
+    for d in done:
+        print('  ->', d)
+    print(f'{len(done)} archivos Word creados')
+    return done
+
+
+if __name__ == '__main__':
+    convert_folder(sys.argv[1])

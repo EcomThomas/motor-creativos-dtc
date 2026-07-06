@@ -9,6 +9,7 @@ export const meta = {
 // {
 //   spinePath:   "ruta/al/Spine.md",
 //   scriptsPath: "ruta/al/competitor_scripts.md",
+//   vocPath:     "ruta/al/voc_bank.md",   // OPCIONAL: banco VoC con IDs EVxxxx
 //   batches: [ {concept, angle, avatar, mass_desire, awareness, hypothesis}, ... ], // metadata de cada bache
 //   adsPerBatch: 3
 // }
@@ -18,11 +19,18 @@ export const meta = {
 const A = args || {}
 const SPINE = A.spinePath
 const SCRIPTS = A.scriptsPath
+const VOC = A.vocPath || null
 const M = A.adsPerBatch || 3
 const batches = A.batches || []
 if (!SPINE || !SCRIPTS || !batches.length) {
   throw new Error('wf-imitaciones requiere args.spinePath, args.scriptsPath y args.batches[]')
 }
+
+// Contrato de VoC (INTERFACE §4). El criterio "hecho bien" de Fase 2 pide 2-4 EVxxxx por ad:
+// eso SOLO es exigible si hay banco VoC. Sin banco, se prohíbe inventar IDs.
+const VOC_BLOCK = VOC
+  ? `- Banco VoC (munición literal, con IDs de evidencia): "${VOC}". LÉELO y re-ancla con lenguaje LITERAL del mercado. Cada ad debe citar 2-4 IDs EVxxxx REALES de ese archivo en "nota". NO inventes IDs.`
+  : `- NO hay banco VoC en esta corrida. Re-ancla con el lenguaje del Spine. En "nota" NO cites IDs EVxxxx (no inventes): declara "sin VoC — re-anclaje derivado del Spine".`
 
 const AD = {
   type: 'object', additionalProperties: false,
@@ -46,6 +54,7 @@ const results = await parallel(batches.map((b, i) => () => agent(
 FUENTES:
 - Spine (frame estratégico VIGENTE, fuente de verdad): "${SPINE}"
 - Estructuras ganadoras del competidor: "${SCRIPTS}"
+${VOC_BLOCK}
 - Metadata de ESTE bache (no la cambies, es tu concepto): ${JSON.stringify(b)}
 
 QUÉ ES IMITACIÓN: te basas ~90-100% en la ESTRUCTURA de un anuncio ganador del competidor. Conservas su ARCO (patrón de hook, secuencia problema->giro->mecanismo->prueba->CTA, ritmo, formato). SOLO re-anclas el CONTENIDO al Spine: avatar, emoción, villano, mecanismo (respetando el léxico prohibido del Spine), prueba, objeción.
@@ -55,7 +64,7 @@ REGLAS:
 - Copy en el idioma/registro del mercado del Spine, tono del avatar.
 - Compliance según el Spine: afirmaciones fuertes en boca de testimonio; nada de claims prohibidos.
 - ad_format Video o Static según la estructura imitada.
-- "nota": qué competidor imitas + qué elementos estructurales conservaste + qué re-anclaste + IDs de VoC.
+- "nota": qué competidor imitas + qué elementos estructurales conservaste + qué re-anclaste al Spine + (si hay banco VoC) los IDs EVxxxx reales que lo sostienen; sin banco VoC, no cites IDs.
 
 Devuelve EXACTAMENTE ${M} ads en el schema. Sin texto de proceso.`,
   { label: `bache-${i + 1}`, phase: 'Imitaciones', schema: SCHEMA }

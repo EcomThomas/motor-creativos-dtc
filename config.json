@@ -1,0 +1,50 @@
+{
+  "_comment": "Fuente ÚNICA de defaults del Motor de Creativos DTC. Lo consumen los builders Python (via motor_config.py) y el runbook para saber qué args pasar a los workflows. Product-agnostic: nada de un producto concreto vive aquí.",
+  "version": "1.0",
+
+  "defaults": {
+    "n_baches": 5,
+    "m_ads_por_bache": 3,
+    "awareness_default": "Problem Aware",
+    "ad_format_default": "Video",
+    "clasificacion_policy": "mayoria_imitacion",
+    "author_roadmap": "AI"
+  },
+
+  "enums": {
+    "awareness": ["Unaware", "Problem Aware", "Solution Aware", "Product Aware", "Most Aware"],
+    "ad_type": ["Imitation", "Iteration", "Ideation"],
+    "ad_format": ["Video", "Static"],
+    "roadmap_status": ["Ideando", "Working", "Learning", "Filming", "Done"]
+  },
+
+  "angulos_base": [
+    { "key": "nucleo",         "title": "Núcleo",          "desc": "Abre por el deseo #1 y la emoción troncal, directo sobre el avatar núcleo. El ángulo recto." },
+    { "key": "objecion",       "title": "Objeción",        "desc": "Desarma la objeción raíz (seguridad, precio, esfuerzo, credibilidad). Convierte el bloqueo de compra en el gancho." },
+    { "key": "villano",        "title": "Villano",         "desc": "Nombra y ataca al villano del Spine (incluida la anti-solución/DIY). El producto se posiciona como el reemplazo limpio." },
+    { "key": "prueba",         "title": "Prueba",          "desc": "Testimonio/demostración con la prueba nativa del Spine (métrica, antes/después, evidencia dura). Suele ser Product/Most Aware." },
+    { "key": "cabeza_playa",   "title": "Cabeza de playa", "desc": "Sub-avatar o síntoma de entrada más barato de captar que puentea al deseo núcleo. Va marcado en la hipótesis como A VALIDAR." }
+  ],
+
+  "spine_campos_obligatorios": [
+    "avatar_nucleo",
+    "deseo_masivo_1",
+    "emocion_troncal",
+    "mecanismo",
+    "villano",
+    "prueba",
+    "objecion_raiz",
+    "awareness",
+    "compliance"
+  ],
+  "spine_mecanismo_subcampos": ["tipo", "nombre", "explicacion", "lexico_prohibido"],
+  "spine_compliance_subcampos": ["claims_prohibidos", "requiere_testimonio", "disclaimers", "notas_categoria"],
+
+  "paths": {
+    "casos_root": "casos",
+    "input_dir": "input",
+    "baches_dir": "baches",
+    "ads_dir": "scripts-ads",
+    "briefs_dir": "briefs"
+  }
+}

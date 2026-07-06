@@ -9,6 +9,7 @@ export const meta = {
 // {
 //   spinePath:   "ruta/al/Spine.md",             // el veredicto estratégico (etapa 1 / research)
 //   scriptsPath: "ruta/al/competitor_scripts.md",// guiones de anuncios GANADORES del competidor
+//   vocPath:     "ruta/al/voc_bank.md",          // OPCIONAL: banco VoC con IDs EVxxxx (etapa 1)
 //   product:     "descripción corta del producto y mercado",
 //   adsPerBatch: 3,                              // opcional (default 3)
 //   focos: [ { title, desc }, ... ]             // UN objeto por bache = un ángulo estratégico del Spine
@@ -17,12 +18,18 @@ export const meta = {
 const A = args || {}
 const SPINE = A.spinePath
 const SCRIPTS = A.scriptsPath
+const VOC = A.vocPath || null
 const PRODUCT = A.product || '<PRODUCTO>'
 const M = A.adsPerBatch || 3
 const focos = A.focos || []
 if (!SPINE || !SCRIPTS || !focos.length) {
   throw new Error('wf-baches requiere args.spinePath, args.scriptsPath y args.focos[] (uno por bache)')
 }
+
+// Contrato de VoC (INTERFACE §4): si hay banco VoC, se cita con IDs reales; si NO, se prohíbe inventarlos.
+const VOC_RULE = VOC
+  ? `BANCO VoC (munición literal del mercado, con IDs de evidencia): "${VOC}". LÉELO. Cuando un hook/línea nazca de una cita real, referencia su ID EVxxxx en "nota". Usa SOLO IDs que existan en ese archivo; NO inventes IDs.`
+  : `NO hay banco VoC en esta corrida. Los hooks son DERIVADOS DEL SPINE, no de VoC literal. NO inventes IDs EVxxxx: si no hay cita real, no cites ninguna.`
 
 const AW = ['Unaware', 'Problem Aware', 'Solution Aware', 'Product Aware', 'Most Aware']
 const AD = {
@@ -51,6 +58,7 @@ const PATCH = {
 
 const CTX = `Generas UN BACHE creativo (concepto + ${M} anuncios) para: ${PRODUCT}.
 LEE el Spine (estrategia VIGENTE) en "${SPINE}" y las estructuras ganadoras reales del competidor en "${SCRIPTS}".
+${VOC_RULE}
 El Spine es la FUENTE DE VERDAD del frame (avatar, deseo, emoción, mecanismo con su léxico prohibido, villano, prueba, objeción raíz, awareness, compliance). No inventes nada fuera del Spine.
 
 REGLA CREATIVA (imitación/iteración/ideación son OPCIONES, no una cuota de una-de-cada):

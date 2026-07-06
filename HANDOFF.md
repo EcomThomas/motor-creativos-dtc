@@ -71,20 +71,18 @@ Los workflows del método, ya escritos de forma product-agnostic (pendiente para
 
 Ordenado por prioridad. Cada tarea es concreta y cerrable.
 
-### P0 — Parametrización (lo que desbloquea todo lo demás)
+### P0 — Corribilidad end-to-end ✅ HECHO (2026-07-05)
 
-- [ ] **Parametrizar los 3 workflows por argumento.** Que cada workflow reciba:
-  - `--spine <path>` — ruta al Spine (JSON/MD) que entrega la etapa 1.
-  - `--winners <path>` — ruta al archivo de scripts ganadores del competidor.
-  - `--voc <path>` (opcional) — ruta al banco VoC con IDs de evidencia (EVxxxx).
-  - `--out <path>` — dónde escribir baches/briefs/roadmap.
-  Hoy los workflows asumen el input; deben dejar de asumirlo.
+> **Corrección al handoff anterior:** el P0 original decía "parametrizar los 3 workflows por argumento". Al revisar el código, **eso ya estaba hecho**: los tres workflows reciben todo por `args` (`spinePath`, `scriptsPath`, `product`, `adsPerBatch`, `focos`/`batches`/`bundles`). El P0 real eran otros cuatro gaps que impedían correr el motor de punta a punta. Se cerraron en esta sesión:
 
-- [ ] **Definir defaults del motor** en un solo lugar (config):
-  - `N_BACHES` por defecto (propuesta: 3–5).
-  - `M_ADS` por bache (canon actual: **3**).
-  - Mezcla por defecto de clasificación (canon: mayoría imitación; NO forzar una-de-cada).
-  - Awareness default si el Spine no lo especifica.
+- [x] **VoC cableado (bug de contrato).** Antes, los 3 workflows instruían a los agentes a citar `IDs EVxxxx` y el Spec (Fase 2, "hecho bien") *exigía* 2–4 por ad, pero **ningún workflow recibía la VoC** → el agente no podía cumplir y podía alucinar IDs. Ahora los 3 aceptan `vocPath` y aplican el contrato de la INTERFACE §4 en ambos sentidos: **con** banco VoC citan IDs reales del archivo; **sin** banco, declaran hooks derivados del Spine y **tienen prohibido inventar IDs**.
+- [x] **Persistencia (`--out`).** Los workflows corren en el sandbox de Workflow (sin filesystem): generan y *devuelven* datos. Se añadió la capa Python que escribe a disco: `scripts/persist.py` materializa el bundle en `casos/<slug>/` (baches, ads, briefs `.md`/`.docx`, `roadmap_rows.json`) y, opcional, puebla el Excel vía `build_roadmap.py`.
+- [x] **Config de defaults en un solo lugar.** `config.json` (raíz) + `scripts/motor_config.py`: `N_BACHES` (5), `M_ADS` (3), awareness default, política de clasificación (mayoría imitación), enums, los 5 ángulos base y la convención de paths de `casos/`.
+- [x] **Orquestador.** `scripts/wf_motor.js`: un solo Workflow que enhebra Fase 1 → 2 → 4 en memoria (pipeline por foco, sin barreras) y devuelve el bundle completo, VoC-wired.
+- [x] **Fase 0 que no existía en código.** `scripts/intake.py`: valida el Spine contra los obligatorios (INTERFACE §6/§8), aplica el protocolo de faltantes (bloquea con reporte `INPUT INCOMPLETO` si falta un obligatorio) y congela el snapshot en `casos/<slug>/input/` con `_meta.md` (§5).
+- [x] **Runbook.** `RUNBOOK.md`: la secuencia operativa exacta (intake → wf_motor → persist → handoff), dado que los Workflow los invoca Claude, no un CLI.
+
+**Cómo se probó:** `motor_config.py`, `intake.py` (caso válido → exit 0 + snapshot; caso con faltantes → exit 2 + reporte) y `persist.py` (bundle simulado → estructura de caso completa + `.docx`) corren OK end-to-end. Los 4 workflows pasan `node --check`. **Falta la validación viva:** correr `wf_motor.js` con un Spine real (gasta agentes/tokens) para ver la calidad del output generado.
 
 ### P1 — Generalización del método
 
@@ -139,6 +137,21 @@ El resto del trabajo (editar docs, workflows, specs, plantillas, builders locale
 
 ## 6. Estado y fecha
 
-- **Estado:** scaffold + 6 docs de método + spec + interfaz + 3 workflows generalizados + plantilla de input = **montado**. Falta la parametrización (P0) y las conexiones al resto del pipeline (P2).
-- **Fecha de este handoff:** 2026-07-05.
-- **Próximo paso recomendado:** arrancar por P0 (parametrizar los 3 workflows por argumento y fijar defaults), porque desbloquea todo el backlog posterior.
+- **Estado:** scaffold + 6 docs de método + spec + interfaz + plantilla de input **montado**, y **P0 (corribilidad end-to-end) cerrado**: Fase 0 (intake+snapshot), config de defaults, VoC cableado, orquestador y capa de persistencia — el motor ya corre de punta a punta (ver `RUNBOOK.md`). Falta la **validación viva con un Spine real**, P1 (compliance por categoría + roadmap idempotente) y P2 (conexiones al resto del pipeline).
+- **Fecha de este handoff:** 2026-07-05 (actualizado esta sesión).
+- **Próximo paso recomendado:** correr `wf_motor.js` con un Spine + scripts reales (primer caso de referencia dentro de este repo, P3) para validar la calidad del output; en paralelo, atacar P1 (roadmap idempotente — hoy `build_roadmap.py` hace append y duplica al re-correr).
+
+---
+
+## 7. Archivos nuevos de esta sesión (mapa rápido)
+
+| Archivo | Rol |
+|---|---|
+| `config.json` | Fuente única de defaults (N, M, awareness, enums, 5 ángulos base, paths). |
+| `RUNBOOK.md` | Cómo correr el motor end-to-end (modelo de 2 capas: Python valida/escribe, Workflow genera). |
+| `scripts/motor_config.py` | Loader de `config.json` + helpers de paths (`case_paths`, `slugify`). |
+| `scripts/intake.py` | Fase 0: valida Spine (INTERFACE §6/§8) + congela snapshot (§5). |
+| `scripts/persist.py` | Fases 3-4: escribe el bundle del orquestador a `casos/<slug>/` (+ opcional Excel/docx). |
+| `scripts/wf_motor.js` | Orquestador: Fase 1→2→4 en una corrida, VoC-wired, devuelve el bundle. |
+| `scripts/wf_baches.js`·`wf_imitaciones.js`·`wf_briefs.js` | Ahora aceptan `vocPath` (contrato VoC INTERFACE §4). |
+| `scripts/md2docx.py` | Refactor: ahora es importable (`convert`, `convert_folder`) además de CLI. |
