@@ -1,0 +1,20 @@
+# --- Secretos: NUNCA commitear ---
+*.env
+.env*
+*secret*
+*token*
+
+# --- Config local del harness (no compartir) ---
+.claude/settings.local.json
+
+# --- Python ---
+__pycache__/
+*.pyc
+
+# --- Temporales de Office / OS ---
+~$*
+.DS_Store
+Thumbs.db
+
+# --- Salidas locales pesadas por caso (los entregables versionables van sin /output) ---
+casos/*/output/
