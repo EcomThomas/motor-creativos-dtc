@@ -17,7 +17,7 @@ Uso:
 
 finalize_config.json:
 [
-  { "n": 147, "mother_id": "868k8pvjt",
+  { "n": 147, "mother_id": "<task_id>",
     "folder_url": "https://drive.google.com/drive/folders/...",
     "subtasks": { "1": "<id>", "2": "<id>", "3": "<id>" },
     "docs":     { "1": "https://docs.google.com/document/d/...", "2": "...", "3": "..." } },
@@ -32,9 +32,9 @@ import urllib.request
 
 from clickup_export import val, FALTA
 from clickup_upload import madre_desc  # madre_desc(b, carpeta, cta)
+from motor_config import get_token
 
 API = "https://api.clickup.com/api/v2"
-ENV = r"C:\Users\Thomas\research_secrets.env"
 CTA_MANUAL = "[Se completa manual — según el advertorial/PDP del caso]"
 
 try:
@@ -44,8 +44,8 @@ except Exception:
 
 
 def token():
-    env = open(ENV, encoding="utf-8", errors="ignore").read()
-    return re.search(r'^CLICKUP_TOKEN=(.+)$', env, re.M).group(1).strip()
+    # CLICKUP_TOKEN del archivo de secretos resuelto por motor_config. Nunca se imprime.
+    return get_token("CLICKUP_TOKEN")
 
 
 def put(tid, payload, tok):
@@ -85,7 +85,8 @@ def main():
         n = entry["n"]
         b = bundle["batches"][n - base]
         carp = entry["folder_url"]
-        put(entry["mother_id"], {"markdown_description": madre_desc(b, carp, CTA_MANUAL)}, tok)
+        put(entry["mother_id"], {"markdown_description": madre_desc(
+            b, carp, CTA_MANUAL, n=n, producto=bundle.get("producto"), plataforma=bundle.get("plataforma"))}, tok)
         trg = b.get("trigger_batch")
         for k, ad in enumerate(b.get("ads", []), 1):
             sid = entry["subtasks"][str(k)]

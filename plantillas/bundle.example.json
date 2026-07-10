@@ -1,0 +1,40 @@
+{
+  "_comment": "Bundle de EJEMPLO (1 batch / 2 piezas) que muestra el schema completo que consume clickup_upload.py. Sirve para el dry-run del SETUP y como referencia de campos. NO es data real: reemplázalo por tu bundle generado en casos/<tu-producto>/bundle_<n>.json.",
+  "producto": "Producto Demo",
+  "plataforma": "Meta",
+  "batches": [
+    {
+      "n": 1,
+      "concept": "El problema no es <X>, es <causa raíz que nadie te explicó>",
+      "etiqueta_breve": "Causa raíz — anti-mecanismo",
+      "angle": "Anti-mecanismo: reencuadra el fracaso del avatar hacia la causa real",
+      "hypothesis": "Creemos que reencuadrar el dolor hacia <causa raíz> sobre <avatar> subirá el CTR porque valida su experiencia sin culparlo.",
+      "avatar": "<avatar núcleo del Spine, en su lenguaje>",
+      "sub_avatar": "<segmento específico: edad/situación/dolor puntual>",
+      "mass_desire": "Quiero <resultado deseado> sin <fricción/objeción>",
+      "valence": "Mixta",
+      "emociones_83": ["Frustración", "Esperanza"],
+      "awareness": "Problem Aware",
+      "classification": "Imitation",
+      "trigger_batch": "Validación: 'no es tu culpa, nunca te lo explicaron así'",
+      "assets": [
+        "Testimonio en cámara (UGC) — <link o [FALTA DEFINIR]>",
+        "B-roll de producto — <link o [FALTA DEFINIR]>"
+      ],
+      "ads": [
+        {
+          "ad_format": "Video",
+          "nombre_creativo": "Demo_V1_Confesion",
+          "concepto_corto": "Confesión: 'probé de todo y nada, hasta que entendí <mecanismo>'",
+          "trigger_emocional": "Alivio de saber que la causa era otra"
+        },
+        {
+          "ad_format": "Video",
+          "nombre_creativo": "Demo_V2_Interpelacion",
+          "concepto_corto": "2a persona: 'si te pasa <síntoma>, no es <X>, es <causa>'",
+          "trigger_emocional": "Reconocimiento directo del síntoma propio"
+        }
+      ]
+    }
+  ]
+}

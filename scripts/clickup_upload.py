@@ -3,22 +3,26 @@
 clickup_upload.py — Sube los BATCH del bundle a ClickUp vía API REST (tarea madre +
 subtareas por pieza), en la lista del flujo creativo. Complemento de clickup_export.py.
 
-- Token: lee CLICKUP_TOKEN de C:\\Users\\Thomas\\research_secrets.env (no se imprime).
+- Token: CLICKUP_TOKEN vía motor_config (MOTOR_SECRETS -> <repo>/.env -> ruta legacy). No se imprime.
+- Lista/estado destino: de config.local.json (clickup_list_id / clickup_status) o por CLI.
 - Tarea madre: nombre "BATCH #<n> — <concepto>", descripción con los campos del batch.
 - Subtareas: una por pieza (V1/G1 BATCH #<n> - <concepto corto>), colgando de la madre.
 - El campo "Brief" queda como placeholder (doc externo).
+- Emite casos/<producto>/clickup/finalize_<n>.json con los IDs reales (madre + subtareas),
+  con folder_url/docs en blanco para completar tras subir los briefs a Drive.
 
 Uso:
-    python clickup_upload.py --bundle bundle.json --list 901112908802 --start-num 147 \
-        [--only 1] [--carpeta LINK] [--cta LINK] [--dry-run]
+    python clickup_upload.py --bundle bundle.json --start-num 147 --status idea \
+        [--list 901xxxxxxxxx] [--only 1] [--carpeta LINK] [--cta LINK] [--dry-run]
 """
 import argparse
 import json
-import re
+import os
 import sys
 import urllib.request
 
-from clickup_export import val, tipo_ad_batch, FORMATO_LETRA, BRIEF_PH, FALTA
+from clickup_export import val, tipo_ad_batch, render_etiqueta, FORMATO_LETRA, BRIEF_PH, FALTA
+from motor_config import get_token, store, case_paths, ensure_dirs
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -26,13 +30,13 @@ except Exception:
     pass
 
 API = "https://api.clickup.com/api/v2"
-ENV = r"C:\Users\Thomas\research_secrets.env"
 LINKPH = "[LINK]"
 
 
 def token():
-    env = open(ENV, encoding="utf-8", errors="ignore").read()
-    return re.search(r'^CLICKUP_TOKEN=(.+)$', env, re.M).group(1).strip()
+    # CLICKUP_TOKEN del archivo de secretos resuelto por motor_config
+    # (MOTOR_SECRETS -> <repo>/.env -> ruta legacy). Nunca se imprime.
+    return get_token("CLICKUP_TOKEN")
 
 
 def post(path, payload, tok):
@@ -42,9 +46,16 @@ def post(path, payload, tok):
     return json.load(urllib.request.urlopen(req, timeout=60))
 
 
-def madre_desc(b, carpeta, cta):
+def madre_desc(b, carpeta, cta, n=None, producto=None, plataforma=None):
+    # Formato canónico de la tarea madre (metodo/08 §3.1-3.2). Si se pasan n+producto,
+    # antepone la ETIQUETA CORTA. Cierra con "Assets necesarios" (de b["assets"] o FALTA).
     emos = " · ".join(b.get("emociones_83") or []) or FALTA
-    return "\n".join([
+    assets = b.get("assets") or []
+    lines = []
+    if n is not None and producto:
+        lines += [render_etiqueta(b, n, producto, plataforma), ""]
+    lines += [
+        f"**Nombre batch:** {val(b.get('etiqueta_breve') or b.get('concept'))}",
         f"**Ad Concept:** {val(b.get('concept'))}",
         f"**Ángulo:** {val(b.get('angle'))}",
         f"**Hipótesis:** {val(b.get('hypothesis'))}",
@@ -58,7 +69,10 @@ def madre_desc(b, carpeta, cta):
         "",
         f"**Carpeta de carga de creativos:** {carpeta}",
         f"**Destino del CTA:** {cta}",
-    ])
+        "**Assets necesarios:**",
+    ]
+    lines += [f"• {a}" for a in assets] if assets else [f"• {FALTA}"]
+    return "\n".join(lines)
 
 
 def sub_desc(ad, carpeta, cta, batch_trigger):
@@ -78,19 +92,29 @@ def sub_desc(ad, carpeta, cta, batch_trigger):
 def main():
     ap = argparse.ArgumentParser(description="Sube los BATCH del bundle a ClickUp.")
     ap.add_argument("--bundle", required=True)
-    ap.add_argument("--list", required=True, help="list_id destino en ClickUp.")
+    ap.add_argument("--list", default=None, help="list_id destino. Default: clickup_list_id de config.local.json.")
     ap.add_argument("--start-num", type=int, required=True, help="Número del primer BATCH (ej. 147).")
     ap.add_argument("--only", type=int, default=None, help="Subir solo el bache i (1-based) del bundle (para probar).")
-    ap.add_argument("--status", default=None, help="Estado ClickUp para las tareas (ej. 'idea').")
+    ap.add_argument("--status", default=None, help="Estado ClickUp (ej. 'idea'). Default: clickup_status de config.local.json.")
     ap.add_argument("--carpeta", default=LINKPH)
     ap.add_argument("--cta", default=LINKPH)
     ap.add_argument("--dry-run", action="store_true", help="No crea nada; muestra qué haría.")
     args = ap.parse_args()
 
-    tok = token()
+    sp = store()
+    list_id = args.list or sp.get("clickup_list_id")
+    status = args.status or sp.get("clickup_status")
+    if not list_id and not args.dry_run:
+        sys.exit("ERROR: falta list_id. Pásalo con --list o define clickup_list_id en config.local.json "
+                 "(ver config.local.example.json).")
+
+    tok = None if args.dry_run else token()
     bundle = json.load(open(args.bundle, encoding="utf-8"))
     batches = bundle.get("batches", [])
+    producto = bundle.get("producto") or "caso"
+    plataforma = bundle.get("plataforma")
     created = []
+    mount_cfg = []  # config listo para clickup_finalize (folder_url/docs se completan tras subir a Drive)
 
     for i, b in enumerate(batches):
         if args.only and (i + 1) != args.only:
@@ -98,33 +122,49 @@ def main():
         n = args.start_num + i
         name = f"BATCH #{n} — {b.get('concept', '')}"
         if args.dry_run:
-            print(f"[dry] madre: {name}  (+{len(b.get('ads',[]))} subtareas)")
+            print(f"[dry] madre: {name}  (+{len(b.get('ads',[]))} subtareas)  -> list {list_id or '[FALTA]'}")
             continue
-        mpayload = {"name": name, "markdown_description": madre_desc(b, args.carpeta, args.cta)}
-        if args.status:
-            mpayload["status"] = args.status
-        parent = post(f"/list/{args.list}/task", mpayload, tok)
+        mpayload = {"name": name, "markdown_description": madre_desc(b, args.carpeta, args.cta, n=n, producto=producto, plataforma=plataforma)}
+        if status:
+            mpayload["status"] = status
+        parent = post(f"/list/{list_id}/task", mpayload, tok)
         pid, purl = parent["id"], parent.get("url", "")
         counters = {"V": 0, "G": 0}
         batch_trigger = b.get("trigger_batch")
         subs = []
-        for ad in b.get("ads", []):
+        sub_ids = {}
+        for k, ad in enumerate(b.get("ads", []), 1):
             letra = FORMATO_LETRA.get(ad.get("ad_format", "Video"), "V")
             counters[letra] += 1
             title = f"{letra}{counters[letra]} BATCH #{n} - {val(ad.get('concepto_corto'))}"
             spayload = {"name": title, "markdown_description": sub_desc(ad, args.carpeta, args.cta, batch_trigger),
                         "parent": pid}
-            if args.status:
-                spayload["status"] = args.status
-            st = post(f"/list/{args.list}/task", spayload, tok)
+            if status:
+                spayload["status"] = status
+            st = post(f"/list/{list_id}/task", spayload, tok)
             subs.append(st["name"])
+            sub_ids[str(k)] = st["id"]
         created.append((n, name, purl, subs))
+        mount_cfg.append({"n": n, "mother_id": pid, "folder_url": "",
+                          "subtasks": sub_ids, "docs": {k: "" for k in sub_ids}})
         print(f"✓ BATCH #{n} creado ({len(subs)} subtareas)\n  {purl}")
         for s in subs:
             print(f"    · {s}")
 
-    if not args.dry_run:
+    if not args.dry_run and mount_cfg:
+        # Emite el config de finalize CON los IDs reales, para no re-consultar ClickUp después.
+        # folder_url + docs (links de los Google Docs) se completan tras subir los briefs a Drive.
+        paths = ensure_dirs(case_paths(producto))
+        outdir = os.path.join(paths["base"], "clickup")
+        os.makedirs(outdir, exist_ok=True)
+        lo, hi = args.start_num, args.start_num + len(batches) - 1
+        suffix = f"{lo}" if len(mount_cfg) == 1 else f"{lo}-{hi}"
+        cfgpath = os.path.join(outdir, f"finalize_{suffix}.json")
+        with open(cfgpath, "w", encoding="utf-8") as f:
+            json.dump(mount_cfg, f, ensure_ascii=False, indent=2)
         print(f"\n{len(created)} BATCH subido(s) a ClickUp.")
+        print(f"Estado de montaje -> {cfgpath}")
+        print("Siguiente: sube los briefs a Drive, completa folder_url + docs en ese JSON y corre clickup_finalize.py.")
 
 
 if __name__ == "__main__":

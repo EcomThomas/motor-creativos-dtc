@@ -1,0 +1,16 @@
+{
+  "_comment": "Perfil de TU tienda. Copia este archivo a config.local.json (gitignored) y pon tus datos. Cada persona del equipo tiene el suyo. El config.json compartido NO se toca.",
+
+  "producto": "Mi Producto",
+  "plataforma": "Meta",
+
+  "_clickup": "Lista del flujo creativo de TU tienda (misma cuenta/workspace, distinta lista). Sácala de la URL de la lista en ClickUp: .../v/li/<ESTE_NUMERO>. El estado inicial de los batches suele ser 'idea'.",
+  "clickup_list_id": "901xxxxxxxxx",
+  "clickup_status": "idea",
+
+  "_drive": "ID de TU carpeta madre de briefs en Google Drive (de la URL: drive.google.com/drive/folders/<ESTE_ID>). Dentro se crea una subcarpeta por BATCH.",
+  "drive_parent_folder_id": "1AbCdEfGhIjKlMnOpQrStUvWxYz",
+
+  "_spine": "Ruta (relativa al repo) al Spine/compliance de tu producto. Si aún no lo tienes, la skill te guía a crearlo antes de generar batches.",
+  "spine_path": "casos/mi-producto/input/spine.snapshot.json"
+}

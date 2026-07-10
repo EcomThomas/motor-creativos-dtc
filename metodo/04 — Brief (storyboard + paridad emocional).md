@@ -307,7 +307,7 @@ Antes de mandar a producir y antes de dar por cerrado el bache. Marca cada ítem
 - [ ] Subtítulos quemados y captions con el estilo definido.
 - [ ] Safe zones respetadas.
 - [ ] Prompts de generación IA: **uno por cada escena** del storyboard (tantos como filas de la tabla, sin saltarse ninguna), autosuficientes.
-- [ ] Volcado del bache al **Creative Roadmap** (Excel) actualizado.
+- [ ] Batch montado en **ClickUp** (tarea madre + subtareas, estado `idea`) — ver [metodo/08](08%20—%20Entregable%20ClickUp%20(tarea%20madre%20+%20subtareas).md). (El Excel "Creative Roadmap" quedó deprecado.)
 - [ ] Nombres de archivo/versión: `<convención: BATCH-N_ADx_vY>`.
 
 ---

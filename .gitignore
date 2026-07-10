@@ -1,8 +1,16 @@
-# --- Secretos: NUNCA commitear ---
+# --- Secretos: NUNCA commitear (patrón amplio a propósito: ante la duda, se ignora) ---
 *.env
 .env*
 *secret*
 *token*
+# Excepción: la PLANTILLA sí se versiona (no lleva valores reales)
+!.env.example
+
+# --- Descargas de trabajo (videos/imágenes de ads) = data de cliente: quedan LOCALES ---
+descargas*/
+
+# --- Perfil de tienda por usuario (multi-tenant): queda LOCAL ---
+config.local.json
 
 # --- Config local del harness (no compartir) ---
 .claude/settings.local.json

@@ -67,6 +67,64 @@ def ensure_dirs(paths):
     return paths
 
 
+# ----------------------------------------------------------------------------
+# Secretos (tokens) — portable, multi-usuario.
+# Resolución del archivo de secretos, en orden:
+#   1) variable de entorno MOTOR_SECRETS (ruta al archivo .env)
+#   2) <raíz del repo>/.env
+#   3) ruta legacy de un solo usuario (compat hacia atrás)
+# El archivo es `NOMBRE=valor` por línea. Nunca se imprime el valor.
+# ----------------------------------------------------------------------------
+_LEGACY_SECRETS = r"C:\Users\Thomas\research_secrets.env"
+_SECRETS_CACHE = None
+
+
+def secrets_path():
+    p = os.environ.get("MOTOR_SECRETS")
+    if p and os.path.exists(p):
+        return p
+    repo_env = os.path.join(_REPO_ROOT, ".env")
+    if os.path.exists(repo_env):
+        return repo_env
+    if os.path.exists(_LEGACY_SECRETS):
+        return _LEGACY_SECRETS
+    raise FileNotFoundError(
+        "No encuentro el archivo de secretos. Crea <repo>/.env (copia .env.example) "
+        "o define la variable de entorno MOTOR_SECRETS con la ruta a tu archivo de tokens."
+    )
+
+
+def _secrets_text():
+    global _SECRETS_CACHE
+    if _SECRETS_CACHE is None:
+        _SECRETS_CACHE = open(secrets_path(), encoding="utf-8", errors="ignore").read()
+    return _SECRETS_CACHE
+
+
+def get_token(name):
+    """Devuelve el valor de la línea NOMBRE=... del archivo de secretos. No lo imprime."""
+    m = re.search(rf'^{re.escape(name)}=(.+)$', _secrets_text(), re.M)
+    if not m:
+        raise KeyError(f"Falta {name} en el archivo de secretos ({secrets_path()}).")
+    return m.group(1).strip()
+
+
+# ----------------------------------------------------------------------------
+# Perfil de tienda (multi-tenant) — cada persona del equipo tiene el suyo.
+# Vive en <raíz del repo>/config.local.json (gitignored). Trae los datos que
+# cambian por tienda: lista de ClickUp, carpeta de Drive, producto/Spine, etc.
+# Si no existe, se devuelve {} y los scripts piden los datos por CLI.
+# ----------------------------------------------------------------------------
+_STORE_PATH = os.path.join(_REPO_ROOT, "config.local.json")
+
+
+def store():
+    if os.path.exists(_STORE_PATH):
+        with open(_STORE_PATH, encoding="utf-8") as f:
+            return json.load(f)
+    return {}
+
+
 if __name__ == "__main__":
     # Smoke test: imprime la config resuelta.
     import sys
