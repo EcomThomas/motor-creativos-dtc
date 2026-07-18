@@ -6,13 +6,16 @@ Cada vez que el motor se corre para un producto real, esa corrida completa se ar
 
 ```
 casos/<producto>/
-├── input/          <- SNAPSHOT congelado del INPUT que se consumió (regla de la INTERFACE)
-│   ├── Spine.md                       (la versión exacta del veredicto estratégico usada)
-│   ├── competitor_scripts.md          (los guiones ganadores del competidor)
-│   └── (opcional) voc_bank.*          (evidencia VoC con IDs)
-├── baches/         <- los N baches generados (JSON + volcado a Creative Roadmap)
-├── scripts-ads/    <- los guiones de los anuncios (N baches × M ads)
-└── briefs/         <- el brief de producción por bache (.md + .docx)
+├── input/          <- SNAPSHOT congelado del INPUT que se consumió (regla de la INTERFACE, lo escribe intake.py)
+│   ├── spine.snapshot.json|md          (la versión exacta del Spine consumido)
+│   ├── scripts.snapshot.md             (los guiones ganadores del competidor)
+│   ├── voc.snapshot.md                 (opcional: evidencia VoC con IDs)
+│   └── _meta.md                        (fecha, versión del Spine, quién ejecutó)
+├── baches/         <- los N baches con sus ads (batches_meta.json)
+├── scripts-ads/    <- lista plana de anuncios (ads.json)
+├── briefs/         <- el brief de producción por bache (.md + .docx)
+├── clickup/        <- entregable Fase 3: batch_<N>.txt (tarea madre + subtareas)
+└── bundle.json     <- el bundle completo devuelto por wf_motor (fuente de la corrida)
 ```
 
 **Por qué el snapshot:** el motor de research sigue evolucionando; para que un caso sea **reproducible**, se congela aquí la versión exacta del Spine y de los scripts que alimentaron esa corrida. Ver `INTERFACE — Contrato con el Motor de Research.md`.

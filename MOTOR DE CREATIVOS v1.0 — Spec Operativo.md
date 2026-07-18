@@ -1,6 +1,6 @@
 # MOTOR DE CREATIVOS v1.0 — Spec Operativo
 
-Este documento es el detalle de la máquina. Describe, fase por fase, cómo el Motor de Creativos convierte el **INPUT** (Spine + scripts ganadores + VoC opcional) en el **OUTPUT** (N baches, cada uno con M imitaciones re-ancladas, volcados a Creative Roadmap + un brief de producción por bache). Es **product-agnostic**: nada aquí está atado a una categoría. Los específicos entran por el input mediante marcadores: `<PRODUCTO>`, `<AVATAR>`, `<DESEO>`, `<VILLANO>`, `<MECANISMO>`, `<PRUEBA>`, `<OBJECION>`, `<AWARENESS>`, `<COMPLIANCE>`.
+Este documento es el detalle de la máquina. Describe, fase por fase, cómo el Motor de Creativos convierte el **INPUT** (Spine + scripts ganadores + VoC opcional) en el **OUTPUT** (N baches, cada uno con M imitaciones re-ancladas, entregados en **formato ClickUp** —tarea madre + subtareas— + un brief de producción por bache). Es **product-agnostic**: nada aquí está atado a una categoría. Los específicos entran por el input mediante marcadores: `<PRODUCTO>`, `<AVATAR>`, `<DESEO>`, `<VILLANO>`, `<MECANISMO>`, `<PRUEBA>`, `<OBJECION>`, `<AWARENESS>`, `<COMPLIANCE>`.
 
 Recordatorio de posición en el pipeline:
 
@@ -19,7 +19,7 @@ El motor NO inventa estrategia. La estrategia ya viene decidida en el **Spine** 
 | 0 | Intake del input | Spine + scripts ganadores + VoC (opcional) | Contexto validado (`CTX` + rutas) | Humano (curaduría) + workflow (carga) |
 | 1 | Generar N baches | CTX + Spine | `batches_meta.json` (N objetos bache SIN ads finales, o con borrador de ads) | Workflow → N agentes en paralelo |
 | 2 | Generar M imitaciones por bache | 1 bache + scripts ganadores + Spine + VoC | N × M anuncios de imitación | Workflow → N agentes en paralelo |
-| 3 | Volcado a Creative Roadmap | Baches + ads | Hoja Excel "Creative Roadmap" poblada | Workflow (escritura) + humano (revisión) |
+| 3 | Entregable ClickUp | Baches + ads (con campos ClickUp) | `.txt` por bache: tarea madre + subtareas | `clickup_export.py` (ensambla) + humano (links + pega) |
 | 4 | Brief de producción por bache | 1 bache + sus ads | N briefs (script + storyboard con paridad emocional + prompts) | Agente por bache + humano (aprobación) |
 | 5 | Handoff a producción/media buying | Roadmap + briefs | Paquete accionable para grabar/diseñar y para levantar campañas | Humano (director creativo / media buyer) |
 
@@ -77,13 +77,17 @@ Reglas para escalar el número de ángulos: si el Spine tiene varios sub-avatare
 
 ```
 BATCH = {
-  concept:     string   // nombre pegajoso del concepto, ej. "El Diagnóstico que Reversé"
-  angle:       string   // el ángulo estratégico (núcleo | objeción | villano | prueba | cabeza de playa | ...)
-  avatar:      string   // a quién le habla este bache (núcleo o sub-avatar)
-  mass_desire: string   // en formato "Quiero..."  (el deseo masivo que activa)
-  awareness:   enum      { Unaware | Problem Aware | Solution Aware | Product Aware | Most Aware }
-  hypothesis:  string   // qué se está testeando; si es cabeza de playa, marcar "A VALIDAR"
-  ads:         Ad[]      // por defecto 3 (ver Fase 2). En modo borrador ya vienen; en canónico se llenan en Fase 2
+  concept:      string   // nombre pegajoso del concepto, ej. "El Diagnóstico que Reversé"
+  angle:        string   // el ángulo estratégico (núcleo | objeción | villano | prueba | cabeza de playa | ...)
+  avatar:       string   // a quién le habla este bache (núcleo o sub-avatar)
+  sub_avatar:   string   // segmento específico dentro del avatar (edad, situación, dolor puntual)
+  mass_desire:  string   // en formato "Quiero..."  (el deseo masivo que activa)
+  awareness:    enum      { Unaware | Problem Aware | Solution Aware | Product Aware | Most Aware }
+  hypothesis:   string   // qué se está testeando; si es cabeza de playa, marcar "A VALIDAR"
+  valence:      enum      { Positiva | Negativa | Mixta }   // valence emocional dominante del batch (anclada en la emoción troncal del Spine)
+  emociones_83: string[]  // las 1-3 emociones que cubren ~83% del batch (del Spine + el copy), no inventadas
+  trigger_batch: string   // trigger emocional troncal del batch (se hereda a las piezas sin trigger propio)
+  ads:          Ad[]      // por defecto 3 (ver Fase 2). En modo borrador ya vienen; en canónico se llenan en Fase 2
 }
 ```
 
@@ -125,13 +129,16 @@ Cada uno de los M ads de un mismo bache imita la estructura de un **competidor D
 
 ```
 Ad (imitación) = {
-  imita_competidor: string           // nombre del competidor/ad cuya estructura se imita (del archivo de scripts)
-  ad_format:        enum { Video | Static }   // Video por defecto (testimonial/narrativo);
-                                              // Static solo si la estructura imitada es imagen+texto
-  copy:             string           // guion/copy COMPLETO, listo para grabar/diseñar, en el idioma/registro del avatar
-  nota:             string           // 1) qué estructura del competidor se conservó,
-                                     // 2) qué se re-ancló al Spine,
-                                     // 3) IDs EVxxxx de VoC que sostienen el re-anclaje
+  imita_competidor:  string           // nombre del competidor/ad cuya estructura se imita (del archivo de scripts)
+  ad_format:         enum { Video | Static }   // Video por defecto (testimonial/narrativo);
+                                               // Static solo si la estructura imitada es imagen+texto
+  copy:              string           // guion/copy COMPLETO, listo para grabar/diseñar, en el idioma/registro del avatar
+  nota:              string           // 1) qué estructura del competidor se conservó,
+                                      // 2) qué se re-ancló al Spine,
+                                      // 3) IDs EVxxxx de VoC que sostienen el re-anclaje (solo si hay banco VoC)
+  nombre_creativo:   string           // nombre interno claro y utilizable de la pieza (para ClickUp)
+  concepto_corto:    string           // idea PUNTUAL de esta pieza, breve — va en el título de la subtarea
+  trigger_emocional: string           // qué activa la respuesta emocional del avatar en ESTA pieza
 }
 ```
 
@@ -197,17 +204,17 @@ Convierte cada bache (y sus ads) en un documento que producción puede grabar/di
 
 ## Fase 5 — Handoff a producción / media buying
 
-**Input**: Creative Roadmap poblada (Fase 3) + briefs aprobados (Fase 4).
+**Input**: entregable ClickUp poblado (Fase 3) + briefs aprobados (Fase 4).
 
 **Output**: un **paquete accionable**:
 - Assets a producir por prioridad (qué se graba/diseña primero).
 - Mapa **ad → campaña/ad set** para el media buyer, con el nivel de awareness (para casar con audiencia/ubicación) y la hipótesis (para leer el resultado del test).
-- Convenciones de **nomenclatura** que amarran cada asset a su fila del roadmap (para que el feedback de Etapa 4 vuelva trazable a bache/hipótesis).
+- Convenciones de **nomenclatura** que amarran cada asset a su subtarea de ClickUp / bache (para que el feedback de Etapa 4 vuelva trazable a bache/hipótesis).
 
 **Quién lo hace**: humano (director creativo entrega producción; media buyer levanta las campañas de Etapa 3).
 
 **Criterio de "hecho bien"**
-- Cada asset producido mapea **1:1** a una fila del roadmap y a una **hipótesis** testeable.
+- Cada asset producido mapea **1:1** a una subtarea de ClickUp (bache) y a una **hipótesis** testeable.
 - La nomenclatura permite que la Etapa 4 (Feedback) devuelva ganadores/perdedores **al bache y a la hipótesis** que los originó, cerrando el loop hacia Research.
 
 ---

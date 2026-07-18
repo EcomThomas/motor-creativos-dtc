@@ -143,7 +143,7 @@ Por qué 5:
 
 > Regla práctica: **≥3 de los 5 baches deben ser de bajo riesgo** (anclados en ganadores del competidor vía Imitación), y **como máximo 1-2 exploratorios**. El arranque busca tracción, no arte. Escala lo que gana, mata lo que no, y en la siguiente vuelta reemplaza los baches muertos por nuevas hipótesis derivadas del feedback.
 
-Cada bache produce por defecto **3 anuncios** (mayoritariamente Imitaciones re-ancladas al Spine), de modo que un arranque de 5 baches = **~15 anuncios** listos para volcar al Creative Roadmap.
+Cada bache produce por defecto **3 anuncios** (mayoritariamente Imitaciones re-ancladas al Spine), de modo que un arranque de 5 baches = **~15 anuncios** listos para el entregable ClickUp (Fase 3) y sus briefs de producción.
 
 ---
 

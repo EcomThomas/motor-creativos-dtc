@@ -2,7 +2,7 @@
 
 Este documento es la **plantilla canónica del brief de producción por bache**. Convierte un bache aprobado (concept + ángulo + avatar + deseo + hipótesis + sus M anuncios) en un paquete que un editor/productor puede rodar o generar sin volver a preguntarte nada. Es *product-agnostic*: todo lo específico entra por el INPUT (el Spine + los scripts ganadores + los anuncios del bache). Reemplaza cada `<MARCADOR>` con lo que venga del bache.
 
-> **Un brief = un bache.** Si el roadmap tiene N baches, produces N briefs con esta misma estructura.
+> **Un brief = un bache.** Si la corrida tiene N baches, produces N briefs con esta misma estructura.
 
 ---
 
@@ -29,7 +29,7 @@ El **storyboard con paridad emocional** (sección 3 de cada anuncio) es la herra
 
 ## Cómo usar esta plantilla
 
-1. Toma **un** bache del Creative Roadmap.
+1. Toma **un** bache del bundle de la corrida (`batches_meta.json` / la salida de `wf_motor`).
 2. Llena la **Sección 1 (Ficha estratégica)** con el veredicto del Spine + los campos del bache. Aquí defines el **arco emocional troncal** que todos los anuncios del bache van a respetar.
 3. Llena la **Sección 2 (Producción base)**: lo que se comparte entre los M anuncios (casting, locación, props, specs técnicas).
 4. Por cada uno de los **M anuncios** del bache, llena la **Sección 3** completa: script verbatim → storyboard → arco → arte → prompts IA.

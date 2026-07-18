@@ -36,21 +36,23 @@ El scaffold base está completo y funcional como método (aún no del todo param
 - Estructura de carpetas para docs de método, workflows, specs e input.
 - README con el canon del motor y el vocabulario canónico (bache, imitación/iteración/ideación, paridad emocional, compliance).
 
-### 2.2 Los 6 docs de método
-Los documentos que definen CÓMO se generan los creativos, product-agnostic:
+### 2.2 Los 8 docs de método
+Los documentos que definen CÓMO se generan los creativos, product-agnostic (numeración = archivos en `metodo/`):
 
 | # | Doc | Qué define |
 |---|-----|-----------|
-| 1 | Concepto de **bache** | Schema del bache: concept, angle, avatar, mass_desire, awareness, hypothesis, ads[] |
-| 2 | **Clasificación de anuncios** | Imitación / Iteración / Ideación — cuándo usar cada una (imitación = mayoría cuando te apoyas en ganadores) |
-| 3 | **Paridad emocional** | Cada línea del guion tiene escena que refuerza emoción, luz, color, ritmo, sonido; arco con clímax y resolución |
-| 4 | **Compliance** | Marco general: sin claims absolutos, afirmaciones fuertes en boca de testimonio, disclaimers/overlays |
-| 5 | **Re-anclaje al Spine** | Cómo conservar el ARCO del ganador y cambiar solo el CONTENIDO al Spine |
-| 6 | **Brief de producción** | Script + storyboard con paridad emocional + prompts de generación por bache |
+| 01 | **Bache** (definición + schema) | Schema del bache: concept, angle, avatar, sub_avatar, mass_desire, awareness, hypothesis, valence, emociones_83, trigger_batch, ads[] |
+| 02 | **Clasificación** (imitación · iteración · ideación) | Cuándo usar cada una (imitación = mayoría cuando te apoyas en ganadores; son opciones, no cuota) |
+| 03 | **Imitación** (clonar un ganador y re-anclar) | Cómo conservar el ARCO del ganador y cambiar solo el CONTENIDO al Spine |
+| 04 | **Brief** (storyboard + paridad emocional) | Script + storyboard con paridad emocional + prompts de generación por bache |
+| 05 | **Compliance** de creativos | Marco general: sin claims absolutos, afirmaciones fuertes en boca de testimonio, disclaimers/overlays |
+| 06 | **Convención Creative Roadmap (Excel)** — LEGACY | El volcado a Excel; superado por el entregable ClickUp (`metodo/08`) |
+| 07 | **Banco de técnicas de guion y hook** (EVOLVE + EAM) | Tráfico frío (Mirror/Hijack) + Three-Element hook test + técnicas de guion |
+| 08 | **Entregable ClickUp** (tarea madre + subtareas) | Formato de salida de Fase 3: tarea madre + subtareas en texto plano |
 
 ### 2.3 Spec
-- Definición del contrato de INPUT (Spine + scripts ganadores + VoC opcional) y del OUTPUT (N baches, M ads/bache, volcado a Creative Roadmap, brief por bache).
-- Schemas de bache y de ad (imitación/iteración/ideación).
+- Definición del contrato de INPUT (Spine + scripts ganadores + VoC opcional) y del OUTPUT (N baches, M ads/bache, entregable ClickUp, brief por bache).
+- Schemas de bache y de ad, con los campos ClickUp (`valence`, `emociones_83`, `trigger_batch`; y por pieza `nombre_creativo`, `concepto_corto`, `trigger_emocional`).
 
 ### 2.4 Interfaz
 - Definición de cómo se invoca el motor y qué consume/produce cada módulo.
@@ -76,7 +78,7 @@ Ordenado por prioridad. Cada tarea es concreta y cerrable.
 > **Corrección al handoff anterior:** el P0 original decía "parametrizar los 3 workflows por argumento". Al revisar el código, **eso ya estaba hecho**: los tres workflows reciben todo por `args` (`spinePath`, `scriptsPath`, `product`, `adsPerBatch`, `focos`/`batches`/`bundles`). El P0 real eran otros cuatro gaps que impedían correr el motor de punta a punta. Se cerraron en esta sesión:
 
 - [x] **VoC cableado (bug de contrato).** Antes, los 3 workflows instruían a los agentes a citar `IDs EVxxxx` y el Spec (Fase 2, "hecho bien") *exigía* 2–4 por ad, pero **ningún workflow recibía la VoC** → el agente no podía cumplir y podía alucinar IDs. Ahora los 3 aceptan `vocPath` y aplican el contrato de la INTERFACE §4 en ambos sentidos: **con** banco VoC citan IDs reales del archivo; **sin** banco, declaran hooks derivados del Spine y **tienen prohibido inventar IDs**.
-- [x] **Persistencia (`--out`).** Los workflows corren en el sandbox de Workflow (sin filesystem): generan y *devuelven* datos. Se añadió la capa Python que escribe a disco: `scripts/persist.py` materializa el bundle en `casos/<slug>/` (baches, ads, briefs `.md`/`.docx`, `roadmap_rows.json`) y, opcional, puebla el Excel vía `build_roadmap.py`.
+- [x] **Persistencia (`--out`).** Los workflows corren en el sandbox de Workflow (sin filesystem): generan y *devuelven* datos. Se añadió la capa Python que escribe a disco: `scripts/persist.py` materializa el bundle en `casos/<slug>/` (`baches/batches_meta.json`, `scripts-ads/ads.json`, briefs `.md`/`.docx`). Ya NO toca Excel; el entregable operativo es el ClickUp de Fase 3 (`clickup_export.py`).
 - [x] **Config de defaults en un solo lugar.** `config.json` (raíz) + `scripts/motor_config.py`: `N_BACHES` (5), `M_ADS` (3), awareness default, política de clasificación (mayoría imitación), enums, los 5 ángulos base y la convención de paths de `casos/`.
 - [x] **Orquestador.** `scripts/wf_motor.js`: un solo Workflow que enhebra Fase 1 → 2 → 4 en memoria (pipeline por foco, sin barreras) y devuelve el bundle completo, VoC-wired.
 - [x] **Fase 0 que no existía en código.** `scripts/intake.py`: valida el Spine contra los obligatorios (INTERFACE §6/§8), aplica el protocolo de faltantes (bloquea con reporte `INPUT INCOMPLETO` si falta un obligatorio) y congela el snapshot en `casos/<slug>/input/` con `_meta.md` (§5).
@@ -88,10 +90,7 @@ Ordenado por prioridad. Cada tarea es concreta y cerrable.
 
 - [ ] **Generalizar el compliance por categoría de producto.** Hoy el compliance es un marco general. Convertirlo en una tabla por categoría (salud/suplementos, finanzas, belleza, gadgets, etc.) donde el Spine seleccione la categoría y se cargue el léxico prohibido + reglas específicas. El caso de referencia (suplemento hepático) sirve de primer ejemplo de la categoría salud.
 
-- [ ] **Builder de la hoja "Creative Roadmap" (Excel)** que respete validaciones:
-  - Columnas canónicas (bache, concepto, ángulo, avatar, deseo, awareness, hipótesis, classification, ad_format, copy, nota, estado).
-  - Validaciones/enums en las columnas categóricas (awareness, classification ∈ {Imitación, Iteración, Ideación}, ad_format ∈ {Video, Static}).
-  - Que sea idempotente: re-correr no duplica filas.
+- [x] ~~**Builder de la hoja "Creative Roadmap" (Excel)** idempotente~~ — **DESCARTADO.** El motor ya no vuelca al Excel; la Fase 3 es el entregable ClickUp (`clickup_export.py`, `metodo/08`). `metodo/06` y `build_roadmap.py` quedan legacy.
 
 ### P2 — Conexión al resto del pipeline
 
