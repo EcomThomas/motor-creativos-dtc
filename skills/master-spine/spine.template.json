@@ -1,0 +1,30 @@
+{
+  "producto": "<nombre del producto/marca + categoría — de B0>",
+  "spine_version": "v4.0",
+  "target_market": { "lang": "<es|en|…>", "country": "<CL|MX|…>" },
+
+  "avatar_nucleo": "<Core Avatar elegido (UNO): quién es + situación + estado emocional — docs 15+21>",
+  "deseo_masivo_1": "Quiero <resultado que el avatar ya anhela, en su lenguaje — doc 18>",
+  "emocion_troncal": "<emoción de compra PRIMARIA — doc 20 §4.2>",
+
+  "mecanismo": {
+    "tipo": "<UMP|UMS|USP — el que LIDERA, colapso §4>",
+    "nombre": "<nombre del mecanismo tal como se comunica — doc 19>",
+    "explicacion": "<cómo funciona, en lenguaje de mercado — doc 19>",
+    "lexico_prohibido": ["<verbo/frase vetada — gate 7 + palabras a evitar del doc 16>"]
+  },
+
+  "villano": "<enemigo común / causa raíz, NO un competidor — docs 20/16>",
+  "prueba": ["<elemento de prueba 1 — docs 14/17>", "<elemento de prueba 2>"],
+  "objecion_raiz": "<objeción #1 por nº de quotes — doc 20 §5>",
+  "awareness": "<Unaware|Problem Aware|Solution Aware|Product Aware|Most Aware — doc 17>",
+
+  "compliance": {
+    "claims_prohibidos": ["<verbo prohibido gate 7>", "<'hipótesis persuasiva' del doc 19>"],
+    "requiere_testimonio": ["<afirmación fuerte que solo va en testimonio — doc 19>"],
+    "disclaimers": ["<overlay legal de la categoría + cuándo aplica>"],
+    "notas_categoria": "<reglas del vertical — p.ej. salud: mecanismo como creencia/testimonio, no claim clínico>"
+  },
+
+  "_faltantes": []
+}

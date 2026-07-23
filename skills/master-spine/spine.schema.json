@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bbuilders/motor-creativos/spine.schema.json",
+  "title": "Spine (contrato de entrada del Motor de Creativos — espejo de INTERFACE §2)",
+  "description": "Objeto estructurado que produce la skill /master-spine y consume intake.py del Motor de Creativos. Los nombres de campo son EXACTOS: intake.py valida contra ellos.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "producto",
+    "spine_version",
+    "target_market",
+    "avatar_nucleo",
+    "deseo_masivo_1",
+    "emocion_troncal",
+    "mecanismo",
+    "villano",
+    "prueba",
+    "objecion_raiz",
+    "awareness",
+    "compliance"
+  ],
+  "properties": {
+    "producto": {
+      "type": "string",
+      "description": "Nombre del producto/marca y categoría (de B0)."
+    },
+    "spine_version": {
+      "type": "string",
+      "description": "Versión del Spine del research, p.ej. 'v4.0'. Para compat INTERFACE §7."
+    },
+    "target_market": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lang", "country"],
+      "properties": {
+        "lang": { "type": "string", "description": "Idioma de lanzamiento, p.ej. 'es'." },
+        "country": { "type": "string", "description": "País de lanzamiento, p.ej. 'CL', 'MX'." }
+      },
+      "description": "Mercado de LANZAMIENTO (no el de inteligencia)."
+    },
+    "avatar_nucleo": {
+      "type": "string",
+      "minLength": 1,
+      "description": "El Core Avatar elegido (UNO): quién es + situación + estado emocional. De docs 15 + 21."
+    },
+    "deseo_masivo_1": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Deseo dominante en primera persona 'Quiero…', en lenguaje del corpus. De doc 18."
+    },
+    "emocion_troncal": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Emoción de compra PRIMARIA (abre el copy). De doc 20 §4.2."
+    },
+    "mecanismo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tipo", "nombre", "explicacion", "lexico_prohibido"],
+      "properties": {
+        "tipo": {
+          "type": "string",
+          "enum": ["UMP", "UMS", "USP"],
+          "description": "El mecanismo que LIDERA (colapso §4 de la skill). La cadena completa va en el doc 00."
+        },
+        "nombre": { "type": "string", "minLength": 1, "description": "Nombre/etiqueta del mecanismo tal como se comunica." },
+        "explicacion": { "type": "string", "minLength": 1, "description": "Cómo funciona, en lenguaje de mercado." },
+        "lexico_prohibido": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Palabras/frases vetadas al comunicar el mecanismo (gate 7 + palabras a evitar del doc 16). Veto duro."
+        }
+      }
+    },
+    "villano": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Enemigo común / causa raíz (NO un competidor). De docs 20/16."
+    },
+    "prueba": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" },
+      "description": "Elementos de prueba disponibles (demo, dato, testimonio, autoridad, antes/después). De docs 14/17."
+    },
+    "objecion_raiz": {
+      "type": "string",
+      "minLength": 1,
+      "description": "La objeción #1 que frena la compra (mayor nº de quotes). De doc 20 §5."
+    },
+    "awareness": {
+      "type": "string",
+      "enum": ["Unaware", "Problem Aware", "Solution Aware", "Product Aware", "Most Aware"],
+      "description": "Nivel dominante del histograma (doc 17), colapsado por la regla anti-sobreestimación."
+    },
+    "compliance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claims_prohibidos", "requiere_testimonio", "disclaimers", "notas_categoria"],
+      "properties": {
+        "claims_prohibidos": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Afirmaciones vetadas (verbos prohibidos gate 7 + 'hipótesis persuasiva' del doc 19)."
+        },
+        "requiere_testimonio": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Afirmaciones fuertes que SOLO pueden ir en boca de testimonio."
+        },
+        "disclaimers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Textos legales/overlays obligatorios y cuándo aplican."
+        },
+        "notas_categoria": {
+          "type": "string",
+          "description": "Reglas del vertical (salud/finanzas): p.ej. framear mecanismos como creencia/testimonio."
+        }
+      }
+    },
+    "_faltantes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Campos obligatorios sin sustento en los docs. Si NO está vacío, el handoff a creativos queda BLOQUEADO (anti-fabricación §6)."
+    }
+  }
+}
