@@ -21,7 +21,7 @@ Los **defaults** (N=5 baches, M=3 ads, awareness default, los 5 ángulos base) v
 
 Duplica [`plantillas/INPUT — Spine (plantilla).md`](plantillas/INPUT%20—%20Spine%20(plantilla).md) por producto y rellénalo, o trae el Spine del Motor de Research. Necesitas:
 
-- **Spine** — `.json` (validación estricta) o `.md`. Para validación dura en `.md`, embebe el objeto Spine en un bloque ` ```json … ``` `.
+- **Spine** — `.json` (recomendado: lo emite la skill `/master-spine`) **o** `.md` **con** el bloque ` ```json … ``` ` del §13 de la plantilla. ⚠️ Un `.md` **sin** ese bloque **BLOQUEA** el intake (no se puede validar contra INTERFACE §2); si aun así quieres correr sin validar, usa `--allow-freeform` bajo tu responsabilidad.
 - **Scripts ganadores** del competidor (`.md`). Sin ellos la corrida degrada a solo-ideación.
 - **Banco VoC** (opcional, `.md` o `.json`) con IDs `EVxxxx`. Sin él, los hooks se declaran *derivados del Spine* y **los agentes no inventan IDs**.
 

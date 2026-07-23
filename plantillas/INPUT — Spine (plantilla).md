@@ -189,4 +189,48 @@
 - [ ] Léxico prohibido y disclaimers de la categoría (§10)
 - [ ] Mínimo 1 script ganador del competidor pegado verbatim (§11)
 
-> **Regla de paso:** si un campo del checklist queda vacío, el Motor de Creativos operará con supuestos y lo **marcará como hipótesis a validar**, no como hecho del Spine.
+> **Regla de paso:** si falta un campo **obligatorio** del §13, `intake.py` **BLOQUEA la ejecución** (exit 2) y devuelve el reporte `INPUT INCOMPLETO`. El motor **no rellena huecos**: se resuelve el faltante con la Etapa 1 y se vuelve a correr.
+
+---
+
+## 13. Bloque validable (OBLIGATORIO — es lo que lee la máquina)
+
+> Las secciones 1-12 son para **pensar**; este bloque es el **contrato** que `intake.py` valida campo por campo (INTERFACE §2). **Sin él, la ejecución se bloquea.**
+>
+> Rellena el JSON con los valores que ya definiste arriba. No borres campos: si algo no aplica, resuélvelo con la Etapa 1 (no inventes).
+>
+> 💡 **Atajo:** si el research lo corrió el Motor v4.0, la skill `/master-spine` **emite este objeto ya armado** como `spine.json` — pásaselo directo a `intake.py --spine spine.json` y sáltate esta transcripción.
+
+```json
+{
+  "producto": "<nombre del producto + categoría>",
+  "spine_version": "v1",
+  "target_market": { "lang": "es", "country": "MX" },
+
+  "avatar_nucleo": "<quién es + situación + estado emocional (de §2)>",
+  "deseo_masivo_1": "Quiero <resultado en el lenguaje del avatar> (de §3)",
+  "emocion_troncal": "<emoción dominante de entrada (de §5)>",
+
+  "mecanismo": {
+    "tipo": "UMP",
+    "nombre": "<nombre del mecanismo que lidera (de §6)>",
+    "explicacion": "<cómo funciona, en lenguaje de mercado>",
+    "lexico_prohibido": ["<palabra vetada>", "<otra>"]
+  },
+
+  "villano": "<enemigo común / causa raíz (de §7)>",
+  "prueba": ["<prueba 1 (de §8)>", "<prueba 2>"],
+  "objecion_raiz": "<la objeción #1 (de §9)>",
+  "awareness": "Problem Aware",
+
+  "compliance": {
+    "claims_prohibidos": ["<claim vetado (de §10)>"],
+    "requiere_testimonio": ["<afirmación que solo va en boca de testimonio>"],
+    "disclaimers": ["<disclaimer + cuándo aplica>"],
+    "notas_categoria": "<reglas del vertical>"
+  }
+}
+```
+
+**`awareness`** debe ser exactamente uno de: `Unaware` · `Problem Aware` · `Solution Aware` · `Product Aware` · `Most Aware`.
+**`mecanismo.tipo`** debe ser exactamente uno de: `UMP` · `UMS` · `USP`.
