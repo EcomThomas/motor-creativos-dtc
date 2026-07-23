@@ -69,7 +69,11 @@ def _extract_spine_object(spine_path):
     """
     text = _read(spine_path)
     if spine_path.lower().endswith(".json"):
-        return json.loads(text), "json"
+        try:
+            return json.loads(text), "json"
+        except json.JSONDecodeError as e:
+            # No reventar con traceback: se convierte en bloqueo formal (§6).
+            raise ValueError(f"el Spine .json está malformado y no se puede parsear ({e})")
     m = re.search(r"```json\s*(\{.*?\})\s*```", text, re.DOTALL)
     if m:
         try:
@@ -95,7 +99,13 @@ def _validate_spine_object(spine):
     obligatorios = CONFIG["spine_campos_obligatorios"]
     for campo in obligatorios:
         if campo not in spine or _is_empty(spine.get(campo)):
-            faltantes.append(f"spine.{campo}  (ausente o vacío)")
+            # INTERFACE §6: un compliance PRESENTE pero vacío NO bloquea — se pide
+            # confirmación explícita a la etapa 1 (nunca se asume "sin restricciones").
+            if campo == "compliance" and isinstance(spine.get(campo), dict):
+                avisos.append("spine.compliance vino VACÍO → confirmar explícitamente con la etapa 1. "
+                              "No se asume 'sin restricciones' (crítico en salud/finanzas).")
+            else:
+                faltantes.append(f"spine.{campo}  (ausente o vacío)")
 
     # sub-objeto mecanismo
     mec = spine.get("mecanismo")
@@ -178,6 +188,9 @@ def main():
     ap.add_argument("--voc", default=None, help="Ruta al banco VoC (opcional).")
     ap.add_argument("--spine-version", default="(sin declarar)", help="Versión del Spine origen (para _meta).")
     ap.add_argument("--autor", default="AI", help="Quién ejecuta el intake.")
+    ap.add_argument("--allow-freeform", action="store_true",
+                    help="Permite un Spine markdown SIN bloque ```json```. SALTA la validación "
+                         "estricta de INTERFACE §2 — bajo tu responsabilidad.")
     ap.add_argument("--root", default=None, help="Raíz alternativa donde escribir casos/ (default: raíz del repo).")
     args = ap.parse_args()
 
@@ -197,13 +210,31 @@ def main():
                              "Los agentes NO deben inventar IDs EVxxxx.")
 
     # --- Validación del Spine ---
-    spine_obj, modo = _extract_spine_object(args.spine)
+    try:
+        spine_obj, modo = _extract_spine_object(args.spine)
+    except ValueError as e:
+        print(_report_bloqueo(args.producto, [f"spine: {e}"], degradaciones))
+        sys.exit(2)
+
     if spine_obj is not None:
         faltantes, av = _validate_spine_object(spine_obj)
         avisos += av
     else:
-        faltantes = []  # freeform no puede bloquear de forma fiable
+        # Spine markdown FREEFORM: no se puede validar campo por campo. Por la regla de la
+        # INTERFACE (§6/§8 — el motor NO rellena huecos) esto BLOQUEA por defecto; antes
+        # pasaba sin validar nada, que es peor que no validar: da falsa confianza.
         avisos += _heuristic_md_check(args.spine)
+        if args.allow_freeform:
+            faltantes = []
+            avisos.append("⚠️ --allow-freeform: validación estricta OMITIDA bajo tu responsabilidad. "
+                          "Los baches pueden construirse sobre un Spine incompleto.")
+        else:
+            faltantes = [
+                "spine: markdown freeform SIN bloque ```json``` → no se puede validar contra INTERFACE §2.\n"
+                "      Soluciones: (a) entrega el Spine como .json — lo emite la skill /master-spine;\n"
+                "                  (b) embebe el objeto Spine en un bloque ```json``` dentro del .md;\n"
+                "                  (c) si aun así quieres correr sin validar, usa --allow-freeform."
+            ]
 
     # --- Decisión de bloqueo ---
     if faltantes:

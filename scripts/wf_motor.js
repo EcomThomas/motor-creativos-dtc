@@ -116,10 +116,12 @@ El deseo, el avatar y el sub_avatar (segmento especifico: edad/situacion/dolor p
 CAMPOS EMOCIONALES (anclalos en la EMOCION TRONCAL del Spine, NO los inventes): valence = Positiva/Negativa/Mixta segun el registro dominante; emociones_83 = las 1-3 emociones que recorren ~83% del batch; trigger_batch = el detonante emocional troncal del batch.
 Devuelve SOLO la metadata (los anuncios se generan aparte). Sin texto de proceso.`,
     { label: `bache${i + 1}:${foco.key || foco.title}`, phase: 'Baches', schema: META_SCHEMA }
-  ).then(m => ({ n: i + 1, slug: slugify(foco.key || m.concept), foco, meta: m })),
+  ).then(m => ({ n: i + 1, slug: slugify(foco.key || (m && m.concept)), foco, meta: m })),
 
   // Fase 2 — M imitaciones re-ancladas (cada una imita un competidor DISTINTO)
-  (acc, _foco, i) => agent(
+  // Guarda: si la Fase 1 no devolvió metadata (agente caído / error terminal de API), se
+  // salta este bache sin reventar la corrida ni gastar tokens en fases posteriores.
+  (acc, _foco, i) => !acc || !acc.meta ? acc : agent(
     `${FRAME}
 
 Genera ${M} ANUNCIOS DE IMITACION para ESTE bache (no cambies su metadata, es tu concepto):
@@ -135,10 +137,10 @@ REGLAS:
 - Por CADA pieza (para el montaje en ClickUp): nombre_creativo (nombre interno claro y utilizable), concepto_corto (la idea PUNTUAL de esa pieza, breve, no estrategica) y trigger_emocional (que activa la respuesta emocional del avatar en ESA pieza; si no difiere, deja el trigger troncal del batch). NO inventes: anclalos en el copy y en la emocion del Spine.
 Devuelve EXACTAMENTE ${M} ads en el schema. Sin texto de proceso.`,
     { label: `ads-${i + 1}`, phase: 'Imitaciones', schema: ADS_SCHEMA }
-  ).then(r => ({ ...acc, ads: r.ads })),
+  ).then(r => ({ ...acc, ads: (r && r.ads) || [] })),
 
   // Fase 4 — brief de produccion con paridad emocional (una fila por beat del guion)
-  (acc, _foco, i) => agent(
+  (acc, _foco, i) => !acc || !acc.meta ? acc : agent(
     `Eres director creativo + guionista de performance ads DTC (Schwartz). Entregable: el BRIEF DE PRODUCCION COMPLETO del BACHE #${acc.n}, en MARKDOWN, listo para que un editor/productor (o un motor de generacion de video IA) lo ejecute sin mas contexto.
 
 FUENTES:
@@ -175,10 +177,13 @@ Descompon TODO el script en escenas (una fila por beat).
 
 REGLAS: idioma/registro del mercado del Spine; la paridad emocional es el corazon; compliance estricto segun el Spine; documento COMPLETO (tablas escritas de verdad). Sin texto de proceso.`,
     { label: `brief-${i + 1}`, phase: 'Briefs', effort: 'high' }
-  ).then(md => ({ ...acc, brief_md: md })),
+  ).then(md => ({ ...acc, brief_md: md || '' })),
 )
 
-const ok = results.filter(Boolean)
+// Solo entran los baches con metadata real: un agente caído ya no revienta el .map final.
+const ok = results.filter(r => r && r.meta)
+const caidos = results.length - ok.length
+if (caidos) log(`⚠️ ${caidos} bache(s) descartado(s): la Fase 1 no devolvió metadata (agente caído). El resto de la corrida se conserva.`)
 const batches = ok.map(r => ({
   n: r.n, slug: r.slug,
   concept: r.meta.concept, angle: r.meta.angle, avatar: r.meta.avatar, sub_avatar: r.meta.sub_avatar,

@@ -72,10 +72,11 @@ def ensure_dirs(paths):
 # Resolución del archivo de secretos, en orden:
 #   1) variable de entorno MOTOR_SECRETS (ruta al archivo .env)
 #   2) <raíz del repo>/.env
-#   3) ruta legacy de un solo usuario (compat hacia atrás)
+# NO hay fallback a la ruta de otro usuario: cada quien usa SUS tokens, y su cuenta
+# paga su propio consumo (Apify/ad-spy/ClickUp). Si falta el archivo, se FALLA con
+# mensaje claro en vez de tomar credenciales ajenas.
 # El archivo es `NOMBRE=valor` por línea. Nunca se imprime el valor.
 # ----------------------------------------------------------------------------
-_LEGACY_SECRETS = r"C:\Users\Thomas\research_secrets.env"
 _SECRETS_CACHE = None
 
 
@@ -86,8 +87,6 @@ def secrets_path():
     repo_env = os.path.join(_REPO_ROOT, ".env")
     if os.path.exists(repo_env):
         return repo_env
-    if os.path.exists(_LEGACY_SECRETS):
-        return _LEGACY_SECRETS
     raise FileNotFoundError(
         "No encuentro el archivo de secretos. Crea <repo>/.env (copia .env.example) "
         "o define la variable de entorno MOTOR_SECRETS con la ruta a tu archivo de tokens."

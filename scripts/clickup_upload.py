@@ -3,7 +3,7 @@
 clickup_upload.py — Sube los BATCH del bundle a ClickUp vía API REST (tarea madre +
 subtareas por pieza), en la lista del flujo creativo. Complemento de clickup_export.py.
 
-- Token: CLICKUP_TOKEN vía motor_config (MOTOR_SECRETS -> <repo>/.env -> ruta legacy). No se imprime.
+- Token: CLICKUP_TOKEN vía motor_config (MOTOR_SECRETS -> <repo>/.env). Cada usuario usa SUS tokens. No se imprime.
 - Lista/estado destino: de config.local.json (clickup_list_id / clickup_status) o por CLI.
 - Tarea madre: nombre "BATCH #<n> — <concepto>", descripción con los campos del batch.
 - Subtareas: una por pieza (V1/G1 BATCH #<n> - <concepto corto>), colgando de la madre.
@@ -35,7 +35,7 @@ LINKPH = "[LINK]"
 
 def token():
     # CLICKUP_TOKEN del archivo de secretos resuelto por motor_config
-    # (MOTOR_SECRETS -> <repo>/.env -> ruta legacy). Nunca se imprime.
+    # (MOTOR_SECRETS -> <repo>/.env). Nunca se imprime.
     return get_token("CLICKUP_TOKEN")
 
 
@@ -44,6 +44,32 @@ def post(path, payload, tok):
     req = urllib.request.Request(API + path, data=data, method="POST",
                                  headers={"Authorization": tok, "Content-Type": "application/json"})
     return json.load(urllib.request.urlopen(req, timeout=60))
+
+
+# --- IDEMPOTENCIA -----------------------------------------------------------
+# Registro de lo YA subido a ClickUp: casos/<producto>/clickup/uploaded.json
+# Se escribe INCREMENTALMENTE (la madre se registra apenas se crea), así un fallo
+# de red a mitad de las subtareas NO produce una madre duplicada al reintentar.
+def _ledger_path(producto):
+    paths = ensure_dirs(case_paths(producto))
+    outdir = os.path.join(paths["base"], "clickup")
+    os.makedirs(outdir, exist_ok=True)
+    return os.path.join(outdir, "uploaded.json")
+
+
+def _load_ledger(producto):
+    p = _ledger_path(producto)
+    if os.path.exists(p):
+        try:
+            return json.load(open(p, encoding="utf-8"))
+        except Exception:
+            return {}
+    return {}
+
+
+def _save_ledger(producto, ledger):
+    with open(_ledger_path(producto), "w", encoding="utf-8") as f:
+        json.dump(ledger, f, ensure_ascii=False, indent=2)
 
 
 def madre_desc(b, carpeta, cta, n=None, producto=None, plataforma=None):
@@ -99,6 +125,8 @@ def main():
     ap.add_argument("--carpeta", default=LINKPH)
     ap.add_argument("--cta", default=LINKPH)
     ap.add_argument("--dry-run", action="store_true", help="No crea nada; muestra qué haría.")
+    ap.add_argument("--force", action="store_true",
+                    help="Re-sube un BATCH aunque ya figure como subido (CREA DUPLICADOS a propósito).")
     args = ap.parse_args()
 
     sp = store()
@@ -116,19 +144,32 @@ def main():
     created = []
     mount_cfg = []  # config listo para clickup_finalize (folder_url/docs se completan tras subir a Drive)
 
+    ledger = _load_ledger(producto)
+
     for i, b in enumerate(batches):
         if args.only and (i + 1) != args.only:
             continue
         n = args.start_num + i
         name = f"BATCH #{n} — {b.get('concept', '')}"
+        ya = ledger.get(str(n))
+        if ya and not args.force:
+            print(f"⏭  BATCH #{n} ya estaba subido — se OMITE (no se duplica).\n   {ya.get('url','')}")
+            mount_cfg.append({"n": n, "mother_id": ya.get("mother_id", ""), "folder_url": "",
+                              "subtasks": ya.get("subtasks", {}),
+                              "docs": {k: "" for k in ya.get("subtasks", {})}})
+            continue
         if args.dry_run:
-            print(f"[dry] madre: {name}  (+{len(b.get('ads',[]))} subtareas)  -> list {list_id or '[FALTA]'}")
+            estado = " (ya subido — se omitiría)" if ya else ""
+            print(f"[dry] madre: {name}  (+{len(b.get('ads',[]))} subtareas)  -> list {list_id or '[FALTA]'}{estado}")
             continue
         mpayload = {"name": name, "markdown_description": madre_desc(b, args.carpeta, args.cta, n=n, producto=producto, plataforma=plataforma)}
         if status:
             mpayload["status"] = status
         parent = post(f"/list/{list_id}/task", mpayload, tok)
         pid, purl = parent["id"], parent.get("url", "")
+        # Registrar la madre YA: si falla una subtarea, el reintento no la duplica.
+        ledger[str(n)] = {"mother_id": pid, "url": purl, "name": name, "subtasks": {}}
+        _save_ledger(producto, ledger)
         counters = {"V": 0, "G": 0}
         batch_trigger = b.get("trigger_batch")
         subs = []
@@ -144,6 +185,9 @@ def main():
             st = post(f"/list/{list_id}/task", spayload, tok)
             subs.append(st["name"])
             sub_ids[str(k)] = st["id"]
+            # Persistir subtarea a subtarea: un corte de red no deja estado fantasma.
+            ledger[str(n)]["subtasks"] = dict(sub_ids)
+            _save_ledger(producto, ledger)
         created.append((n, name, purl, subs))
         mount_cfg.append({"n": n, "mother_id": pid, "folder_url": "",
                           "subtasks": sub_ids, "docs": {k: "" for k in sub_ids}})
@@ -157,8 +201,11 @@ def main():
         paths = ensure_dirs(case_paths(producto))
         outdir = os.path.join(paths["base"], "clickup")
         os.makedirs(outdir, exist_ok=True)
-        lo, hi = args.start_num, args.start_num + len(batches) - 1
-        suffix = f"{lo}" if len(mount_cfg) == 1 else f"{lo}-{hi}"
+        # Sufijo desde los batches REALMENTE montados (no len(batches)): con --only el
+        # rango era incorrecto y pisaba/creaba archivos con nombre equivocado.
+        ns = [c["n"] for c in mount_cfg]
+        lo, hi = min(ns), max(ns)
+        suffix = f"{lo}" if lo == hi else f"{lo}-{hi}"
         cfgpath = os.path.join(outdir, f"finalize_{suffix}.json")
         with open(cfgpath, "w", encoding="utf-8") as f:
             json.dump(mount_cfg, f, ensure_ascii=False, indent=2)
